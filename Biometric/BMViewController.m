@@ -26,7 +26,7 @@ static NSString * const kServiceUUID = @"398D853C-FE6D-A669-0E72-4A19D103CF0D";
 //static NSString * const kCharacteristicUUID = @"2208559C-21AB-4263-B334-0CFE1946DF17";
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
-static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/blackbox/";
+static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 
 - (void)viewDidLoad
 {
@@ -141,10 +141,8 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
         //if ([service.UUID isEqual:[CBUUID UUIDWithString:kServiceUUID]]) {
          //   [self.peripheral discoverCharacteristics:@[[CBUUID UUIDWithString:kCharacteristicUUID]] forService:service];
         //}
-        //f ([service.UUID isEqual:[CBUUID UUIDWithString:kServiceUUID]]) {
         // https://developer.apple.com/library/ios/documentation/NetworkingInternetWeb/Conceptual/CoreBluetooth_concepts/PerformingCommonCentralRoleTasks/PerformingCommonCentralRoleTasks.html#//apple_ref/doc/uid/TP40013257-CH3-SW7
             [aPeripheral discoverCharacteristics:nil forService:service];
-        //}
     }
 }
 
@@ -154,28 +152,22 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
         //[self cleanup];
         return;
     }
-    //if ([service.UUID isEqual:[CBUUID UUIDWithString:kServiceUUID]]) {
-        for (CBCharacteristic *characteristic in service.characteristics) {
-            //if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:kCharacteristicUUID]]) {
-            //[peripheral setNotifyValue:YES forCharacteristic:characteristic];
-            NSLog(@"Discovered characteristic %@ UUID: %@", characteristic,characteristic.UUID);
-            if([characteristic.UUID isEqual:[CBUUID UUIDWithString:HEARTRATE_UUID]]) {
-                self.statusField.text = @"C:2A37 heartrate found";
-                self.uuidField.text = characteristic.UUID.description;
-                self.aCharacteristic = characteristic;
-                [peripheral readValueForCharacteristic:characteristic];
-                 [peripheral setNotifyValue:YES forCharacteristic:characteristic];
-
-            }
+     for (CBCharacteristic *characteristic in service.characteristics) {
+          NSLog(@"Discovered characteristic %@ UUID: %@", characteristic,characteristic.UUID);
+          if([characteristic.UUID isEqual:[CBUUID UUIDWithString:HEARTRATE_UUID]]) {
+               self.statusField.text = @"C:2A37 heartrate found";
+               self.uuidField.text = characteristic.UUID.description;
+               self.aCharacteristic = characteristic;
+               [peripheral readValueForCharacteristic:characteristic];
+               [peripheral setNotifyValue:YES forCharacteristic:characteristic];
+          }
              /* Write heart rate control point - key repeating callback to didUpdateValueForCharacteristic listener */
-             if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"2A39"]])
-             {
-                  uint8_t val = 1;
-                  NSData* valData = [NSData dataWithBytes:(void*)&val length:sizeof(val)];
-                  [peripheral writeValue:valData forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-             }
-        }
-    //}
+          if([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"2A39"]]) {
+               uint8_t value = 1;
+               NSData* valData = [NSData dataWithBytes:(void*)&value length:sizeof(value)];
+               [peripheral writeValue:valData forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+          }
+     }
 }
 
 /* callback capable */
@@ -185,21 +177,14 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
     
     NSData *data = characteristic.value;
     NSString *dataString = [NSString stringWithFormat:@"%@", data  ];
-    //NSString *dataText = [NSString stringWithUTF8String:@"%@", data];
-    // NSData *data = [NSData data];
-    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    // parse the data as needed
-    //NSLog(@"Value: %@", characteristic.description);//*data.description);
-    //for(NSObject *object in data.
-        //)
     NSString* myString;
     myString = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
     self.uuidField.text = dataString;
           // from apple
-          [self updateWithHRMData:characteristic.value];
+          [self extractHeartRate:characteristic.value];
           NSString *rateString = [NSString stringWithFormat:@"%hu", self.heartRate];
           self.rateField.text = rateString;
-          NSLog(@"size: %d value:%@ %@ %@",data.length, dataString, myString, rateString);
+          NSLog(@"size: %lu value:%@ %@ %@",(unsigned long)data.length, dataString, myString, rateString);
           if(self.heartRate > self.heartRateMax) {
                self.heartRateMax = self.heartRate;
                self.ratePeakField.text = rateString;
@@ -208,7 +193,7 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
                self.heartRateMin = self.heartRate;
                self.rateMinField.text = rateString;
           }
-
+          [self httpPushToDataCenter];
      }
 }
 
@@ -232,52 +217,68 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
         [self.manager cancelPeripheralConnection:self.peripheral];
     }
 }
-/*
-- (void)peripheralManagerDidUpdateState:(CBPeripheralManager *)peripheral {
-    switch (peripheral.state) {
-        case CBPeripheralManagerStatePoweredOn:
-            [self setupService];
-            NSLog(@"Setup");
-            self.statusField.text = @"Setup";
-            self.rateField.text = @"0";
-            break;
-        default:
-            NSLog(@"Peripheral Manager did change state");
-            break;
-    }
-}*/
 
-
-- (void) updateWithHRMData:(NSData *)data
-{
-    const uint8_t *reportData = [data bytes];
+- (void) extractHeartRate:(NSData *)hrData {
+    /*const uint8_t *hrDataBytes = [hrData bytes];
     uint16_t bpm = 0;
     
-    if ((reportData[0] & 0x01) == 0)
-    {
-        /* uint8 bpm */
-        bpm = reportData[1];
+    if((hrDataBytes[0] & 0x01)==0) { // get uint8 variant
+        bpm = hrDataBytes[1];
+    } else { // get uint16 variant
+        bpm = CFSwapInt16LittleToHost(*(uint16_t *)(&hrDataBytes[1]));
     }
-    else
-    {
-        /* uint16 bpm */
-        bpm = CFSwapInt16LittleToHost(*(uint16_t *)(&reportData[1]));
-    }
-    
-    uint16_t oldBpm = self.heartRate;
-    self.heartRate = bpm;
-    if (oldBpm == 0)
-    {
-        //[self pulse];
-        //self.pulseTimer = [NSTimer scheduledTimerWithTimeInterval:(60. / heartRate) target:self selector:@selector(pulse) userInfo:nil repeats:NO];
-//        NSString myString = [[NSString alloc] initWithData:self.heartRate encoding:NSASCIIStringEncoding];
-//        NSLog(@"hr %d",self.heartRate);
+    self.heartRate = bpm;*/
+     const uint8_t *reportData = [hrData bytes];
+     uint16_t bpm = 0;
+     
+     if ((reportData[0] & 0x01) == 0)
+     {
+          /* uint8 bpm */
+          bpm = reportData[1];
+     }
+     else
+     {
+          /* uint16 bpm */
+          bpm = CFSwapInt16LittleToHost(*(uint16_t *)(&reportData[1]));
+     }
+     
+     //uint16_t oldBpm = self.heartRate;
+     self.heartRate = bpm;
+}
 
-        //self.ratePeakField.text = self.heartRate;
-    }
+// use case: reconnect after bt signal lost/regained
+
+
+
+// https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/URLLoadingSystem/Tasks/UsingNSURLConnection.html
+- (void) httpPushToDataCenter {
+     NSMutableString *url = [[NSMutableString alloc ]init ];
+     [url appendString: cloudURLString];
+     [url appendString: @"&u=201310272&pr=ios"];
+     [url appendString: @"&hr="];
+     NSString *rateString = [NSString stringWithFormat:@"%hu", self.heartRate];
+     [url appendString: rateString];
+
+     NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString: url ]
+                                               cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                           timeoutInterval:60.0];
+     
+     // Create the NSMutableData to hold the received data.
+     // receivedData is an instance variable declared elsewhere.
+     //receivedData = [NSMutableData dataWithCapacity: 0];
+     
+     // create the connection with the request
+     // and start loading the data
+     NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:theRequest delegate:self];
+     if (!theConnection) {
+          // Release the receivedData object.
+          //receivedData = nil;
+          
+          // Inform the user that the connection failed.
+     }
 }
 
 
-- (IBAction)readTouchDown:(id)sender {
-}
+
+                               
 @end
