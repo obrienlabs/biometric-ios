@@ -59,8 +59,8 @@ static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DE
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 //static NSString * const cloudURLString = @"http://obrienlabs.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-//static NSString * const cloudURLString = @"http://obrienlabs.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-static NSString * const cloudURLString = @"http://174.118.237.17:7001/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+static NSString * const cloudURLString = @"http://obrienlabs.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+//static NSString * const cloudURLString = @"http://174.118.237.17:7001/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 static int uploads = 0;
 static int uploadsColor = 0;
 static int locationCount = 0;

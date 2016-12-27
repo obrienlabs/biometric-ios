@@ -9,9 +9,15 @@
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <CoreLocation/CoreLocation.h>
+#import "BMModelEvent.h"
+#import "BMUIView.h"
+
 
 //@interface BMViewController : UIViewController
 @interface BMViewController : UIViewController <CBCentralManagerDelegate, CBPeripheralDelegate>
+
+@property (weak, nonatomic) UIView *aView;
+@property (nonatomic, strong) BMModelEvent *dataObject;
 //@property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 ////@property (nonatomic, strong) CBPeripheralDelegate *peripheralDelegate;
 //@property (nonatomic, strong) CBMutableCharacteristic *customCharacteristic;
@@ -51,17 +57,17 @@
 
 @property (nonatomic, strong) NSMutableData *data1;
 @property (nonatomic, strong) NSMutableData *data2;
-@property (assign) uint16_t heartRate1;
+//@property (assign) uint16_t heartRate1; //
 @property (assign) uint16_t lastHeartRate1;
 @property (assign) uint16_t lastHeartRate2;
 @property (assign) uint16_t heartRateMax1;
 @property (assign) uint16_t heartRateMin1;
-@property (assign) uint16_t heartRate2;
+//@property (assign) uint16_t heartRate2; //
 @property (assign) uint16_t heartRateMax2;
 @property (assign) uint16_t heartRateMin2;
 
 @property (assign) double lastHeading;
-@property (assign) double currHeading;
+//@property (assign) double currHeading; //
 @property (weak, nonatomic) IBOutlet UITextField *headingXTextField;
 @property (weak, nonatomic) IBOutlet UITextField *headingYTextField;
 @property (weak, nonatomic) IBOutlet UITextField *headingZTextField;

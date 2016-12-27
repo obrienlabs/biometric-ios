@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ED4D0CB81839C398000CE90B /* BMUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4D0CB71839C398000CE90B /* BMUIView.m */; };
-		ED4D0CBB183AA289000CE90B /* BMModelEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4D0CBA183AA289000CE90B /* BMModelEvent.m */; };
 		EDE96B3317EFE6B400BA52D1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE96B3217EFE6B400BA52D1 /* Foundation.framework */; };
 		EDE96B3517EFE6B400BA52D1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE96B3417EFE6B400BA52D1 /* CoreGraphics.framework */; };
 		EDE96B3717EFE6B400BA52D1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE96B3617EFE6B400BA52D1 /* UIKit.framework */; };
@@ -36,11 +34,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		ED4D0CB61839C398000CE90B /* BMUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMUIView.h; sourceTree = "<group>"; };
-		ED4D0CB71839C398000CE90B /* BMUIView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BMUIView.m; sourceTree = "<group>"; };
-		ED4D0CB9183AA289000CE90B /* BMModelEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMModelEvent.h; sourceTree = "<group>"; };
-		ED4D0CBA183AA289000CE90B /* BMModelEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BMModelEvent.m; sourceTree = "<group>"; };
-		ED4D0CBF183B0405000CE90B /* BMViewDelegateProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BMViewDelegateProtocol.h; sourceTree = "<group>"; };
 		EDE96B2F17EFE6B400BA52D1 /* Biometric.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Biometric.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDE96B3217EFE6B400BA52D1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EDE96B3417EFE6B400BA52D1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -86,13 +79,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		EDC4A99118494BBD00FB8043 /* iPad */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = iPad;
-			sourceTree = "<group>";
-		};
 		EDE96B2617EFE6B400BA52D1 = {
 			isa = PBXGroup;
 			children = (
@@ -126,7 +112,6 @@
 		EDE96B3817EFE6B400BA52D1 /* Biometric */ = {
 			isa = PBXGroup;
 			children = (
-				EDC4A99118494BBD00FB8043 /* iPad */,
 				EDE96B4117EFE6B500BA52D1 /* BMAppDelegate.h */,
 				EDE96B4217EFE6B500BA52D1 /* BMAppDelegate.m */,
 				EDE96B4417EFE6B600BA52D1 /* Main.storyboard */,
@@ -134,11 +119,6 @@
 				EDE96B4817EFE6B600BA52D1 /* BMViewController.m */,
 				EDE96B4A17EFE6B600BA52D1 /* Images.xcassets */,
 				EDE96B3917EFE6B400BA52D1 /* Supporting Files */,
-				ED4D0CB61839C398000CE90B /* BMUIView.h */,
-				ED4D0CB71839C398000CE90B /* BMUIView.m */,
-				ED4D0CB9183AA289000CE90B /* BMModelEvent.h */,
-				ED4D0CBF183B0405000CE90B /* BMViewDelegateProtocol.h */,
-				ED4D0CBA183AA289000CE90B /* BMModelEvent.m */,
 			);
 			path = Biometric;
 			sourceTree = "<group>";
@@ -278,8 +258,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDE96B4917EFE6B600BA52D1 /* BMViewController.m in Sources */,
-				ED4D0CB81839C398000CE90B /* BMUIView.m in Sources */,
-				ED4D0CBB183AA289000CE90B /* BMModelEvent.m in Sources */,
 				EDE96B3F17EFE6B500BA52D1 /* main.m in Sources */,
 				EDE96B4317EFE6B500BA52D1 /* BMAppDelegate.m in Sources */,
 			);
@@ -411,9 +389,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Biometric/Biometric-Prefix.pch";
 				INFOPLIST_FILE = "Biometric/Biometric-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -426,9 +402,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Biometric/Biometric-Prefix.pch";
 				INFOPLIST_FILE = "Biometric/Biometric-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
