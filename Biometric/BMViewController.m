@@ -57,7 +57,7 @@ static NSString * const HEARTRATE_UUID = @"2a37";
 static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 static int uploads = 0;
 //static int uploadFlag = 1;
-static NSString * const USER_ID = @"20131102";
+static NSString * const USER_ID = @"20131103";
 
 CLLocationManager *locationManager;// = [[CLLocationManager alloc] init];
 double currentMaxAccelX;
@@ -66,6 +66,15 @@ double currentMaxAccelZ;
 double currentMaxRotX;
 double currentMaxRotY;
 double currentMaxRotZ;
+double rotX;
+double rotY;
+double rotZ;
+double accelX;
+double accelY;
+double accelZ;
+double bearing;
+double longitude;
+double latitude;
 
 - (void)startSignificantChangeUpdates
 {
@@ -89,6 +98,8 @@ double currentMaxRotZ;
           //NSLog(@"latitude %+.6f, longitude %+.6f\n",
           //      location.coordinate.latitude,
           //      location.coordinate.longitude);
+          longitude = location.coordinate.longitude;
+          latitude = location.coordinate.latitude;
           NSString *latString = [NSString stringWithFormat:@"%+.4f", location.coordinate.latitude];
           NSString *lonString = [NSString stringWithFormat:@"%+.4f", location.coordinate.longitude];
           self.longTextField.text = lonString;
@@ -145,26 +156,39 @@ double currentMaxRotZ;
                                         newHeading.trueHeading : newHeading.magneticHeading);
      self.lastHeading = self.currHeading;
      self.currHeading = theHeading;
-          if(self.lastHeading < self.currHeading) {
-               self.bearingTextField.backgroundColor = [UIColor greenColor];
-               [self.bearingTextField setTextColor: [UIColor blackColor]];
-          } else {
-          if(self.lastHeading == self.currHeading) {
-               self.bearingTextField.backgroundColor = [UIColor yellowColor];
-               [self.bearingTextField setTextColor: [UIColor blackColor]];
-          } else {
-               self.bearingTextField.backgroundColor = [UIColor redColor];
-               [self.bearingTextField setTextColor: [UIColor whiteColor]];
-          }}
+     [self toggleColor: self.currHeading - self.lastHeading onField:self.bearingTextField withFilter:1];
      NSString *headingString = [NSString stringWithFormat:@"%+.1f", theHeading];
-     
      self.bearingTextField.text = headingString;
+     bearing = theHeading;
      //[self updateHeadingDisplays];
+     
+     // max x,y,z
+     double teslaX = newHeading.x;
+     double teslaY = newHeading.y;
+     double teslaZ = newHeading.z;
+     self.headingXTextField.text = [NSString stringWithFormat:@"%+.2f", teslaX];
+     self.headingYTextField.text = [NSString stringWithFormat:@"%+.2f", teslaY];
+     self.headingZTextField.text = [NSString stringWithFormat:@"%+.2f", teslaZ];
+     [self toggleColor: teslaX onField:self.headingXTextField withFilter:3];
+     [self toggleColor: teslaY onField:self.headingYTextField withFilter:3];
+     [self toggleColor: teslaZ onField:self.headingZTextField withFilter:3];
+     
 }
 
-/*- (void) toggleColor:(int) diff:UITextField control {
-     
-}*/
+- (void) toggleColor:(double) diff onField:(UITextField*) control withFilter:(double) filter {
+     if(diff <  -filter) {
+          control.backgroundColor = [UIColor redColor];
+          [control setTextColor: [UIColor whiteColor]];
+     } else {
+          if(diff > filter) {
+               control.backgroundColor = [UIColor greenColor];
+               [control setTextColor: [UIColor blackColor]];
+          } else {
+               control.backgroundColor = [UIColor yellowColor];
+               [control setTextColor: [UIColor blackColor]];
+          }
+     }
+}
 // device motion
 
 // accelerometer
@@ -172,89 +196,103 @@ double currentMaxRotZ;
 
 // gyroscope
 
-static const NSTimeInterval gyroMin = 0.01;
-
-/*- (void)startUpdatesWithSliderValue:(int)sliderValue {
-     
-     // Determine the update interval
-     NSTimeInterval delta = 0.005;
-     NSTimeInterval updateInterval = gyroMin + delta * sliderValue;
-     
-
-// Create a CMMotionManager
-CMMotionManager *mManager = //[(APLAppDelegate *)[[UIApplication sharedApplication] delegate] sharedManager];
-APLGyroGraphViewController * __weak weakSelf = self;
-
-// Check whether the gyroscope is available
-if ([mManager isGyroAvailable] == YES) {
-     // Assign the update interval to the motion manager
-     [mManager setGyroUpdateInterval:updateInterval];
-     [mManager startGyroUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:^(CMGyroData *gyroData, NSError *error) {
-          [weakSelf.graphView addX:gyroData.rotationRate.x y:gyroData.rotationRate.y z:gyroData.rotationRate.z];
-          [weakSelf setLabelValueX:gyroData.rotationRate.x y:gyroData.rotationRate.y z:gyroData.rotationRate.z];
-     }];
-}
-self.updateIntervalLabel.text = [NSString stringWithFormat:@"%f", updateInterval];
-}
-
-- (void)stopUpdates{
-     CMMotionManager *mManager = [(APLAppDelegate *)[[UIApplication sharedApplication] delegate] sharedManager];
-     if ([mManager isGyroActive] == YES) {
-          [mManager stopGyroUpdates];
-     }
-}*/
 
 // magnetometer
+// https://developer.apple.com/library/ios/samplecode/Teslameter/Introduction/Intro.html
+
+
+
+// proximity
+- (void)proximityChanged:(NSNotification *)notification {
+     UIDevice *device = [notification object];
+     if (device.proximityState == 1) {
+          self.proximityTextField.text = @"1";
+          self.proximityTextField.backgroundColor = [UIColor greenColor];
+          [self.proximityTextField setTextColor: [UIColor blackColor]];
+     } else {
+          self.proximityTextField.text = @"0";
+          self.proximityTextField.backgroundColor = [UIColor blueColor];
+          [self.proximityTextField setTextColor: [UIColor whiteColor]];
+     }
+}
+
+// ambient light
+
 
 -(void)outputAccelertionData:(CMAcceleration)acceleration
 {
      
      
      
-     self.accelXtextField.text = [NSString stringWithFormat:@" %.2fg",acceleration.x];
+     self.accelXtextField.text = [NSString stringWithFormat:@" %.3fg",acceleration.x];
      if(fabs(acceleration.x) > fabs(currentMaxAccelX))
      {
           currentMaxAccelX = acceleration.x;
      }
-     self.accelYtextField.text = [NSString stringWithFormat:@" %.2fg",acceleration.y];
+     self.accelYtextField.text = [NSString stringWithFormat:@" %.3fg",acceleration.y];
      if(fabs(acceleration.y) > fabs(currentMaxAccelY))
      {
           currentMaxAccelY = acceleration.y;
      }
-     self.accelZtextField.text = [NSString stringWithFormat:@" %.2fg",acceleration.z];
+     self.accelZtextField.text = [NSString stringWithFormat:@" %.3fg",acceleration.z];
      if(fabs(acceleration.z) > fabs(currentMaxAccelZ))
      {
           currentMaxAccelZ = acceleration.z;
      }
      
-     self.maxAccelXtextField.text = [NSString stringWithFormat:@" %.2f",currentMaxAccelX];
-     self.maxAccelYtextField.text = [NSString stringWithFormat:@" %.2f",currentMaxAccelY];
-     self.maxAccelZtextField.text = [NSString stringWithFormat:@" %.2f",currentMaxAccelZ];
+     self.maxAccelXtextField.text = [NSString stringWithFormat:@" %.3f",currentMaxAccelX];
+     self.maxAccelYtextField.text = [NSString stringWithFormat:@" %.3f",currentMaxAccelY];
+     self.maxAccelZtextField.text = [NSString stringWithFormat:@" %.3f",currentMaxAccelZ];
+     
+     // set colors
+     [self toggleColor: currentMaxAccelX onField: self.maxAccelXtextField withFilter:0.05];
+     [self toggleColor: currentMaxAccelY onField: self.maxAccelYtextField withFilter:0.05];
+     [self toggleColor: currentMaxAccelZ onField: self.maxAccelZtextField withFilter:0.05];
+     [self toggleColor: acceleration.x onField: self.accelXtextField withFilter:0.05];
+     [self toggleColor: acceleration.y onField: self.accelYtextField withFilter:0.05];
+     [self toggleColor: acceleration.z onField: self.accelZtextField withFilter:0.05];
+     accelX = acceleration.x;
+     accelY = acceleration.y;
+     accelZ = acceleration.z;
+     
      
      
 }
 -(void)outputRotationData:(CMRotationRate)rotation
 {
      
-     self.rotXtextField.text = [NSString stringWithFormat:@" %.2fr/s",rotation.x];
+     self.rotXtextField.text = [NSString stringWithFormat:@" %.3fr/s",rotation.x];
      if(fabs(rotation.x) > fabs(currentMaxRotX))
      {
           currentMaxRotX = rotation.x;
      }
-     self.rotYtextField.text = [NSString stringWithFormat:@" %.2fr/s",rotation.y];
+     self.rotYtextField.text = [NSString stringWithFormat:@" %.3fr/s",rotation.y];
      if(fabs(rotation.y) > fabs(currentMaxRotY))
      {
           currentMaxRotY = rotation.y;
      }
-     self.rotZtextField.text = [NSString stringWithFormat:@" %.2fr/s",rotation.z];
+     self.rotZtextField.text = [NSString stringWithFormat:@" %.3fr/s",rotation.z];
      if(fabs(rotation.z) > fabs(currentMaxRotZ))
      {
           currentMaxRotZ = rotation.z;
      }
      
-     self.maxRotXtextField.text = [NSString stringWithFormat:@" %.2f",currentMaxRotX];
-     self.maxRotYtextField.text = [NSString stringWithFormat:@" %.2f",currentMaxRotY];
-     self.maxRotZtextField.text = [NSString stringWithFormat:@" %.2f",currentMaxRotZ];
+     self.maxRotXtextField.text = [NSString stringWithFormat:@" %.3f",currentMaxRotX];
+     self.maxRotYtextField.text = [NSString stringWithFormat:@" %.3f",currentMaxRotY];
+     self.maxRotZtextField.text = [NSString stringWithFormat:@" %.3f",currentMaxRotZ];
+
+     // set colors
+     [self toggleColor: rotation.x onField: self.rotXtextField withFilter:0.05];
+     [self toggleColor: rotation.y onField: self.rotYtextField withFilter:0.05];
+     [self toggleColor: rotation.z onField: self.rotZtextField withFilter:0.05];
+     [self toggleColor: currentMaxRotX onField: self.maxRotXtextField withFilter:0.1];
+     [self toggleColor: currentMaxRotY onField: self.maxRotYtextField withFilter:0.1];
+     [self toggleColor: currentMaxRotZ onField: self.maxRotZtextField withFilter:0.1];
+     rotX = rotation.x;
+     rotY = rotation.y;
+     rotZ = rotation.z;
+
+     
 }
 
 - (void)viewDidLoad
@@ -272,20 +310,26 @@ self.updateIntervalLabel.text = [NSString stringWithFormat:@"%f", updateInterval
      self.motionManager = [[CMMotionManager alloc] init];
      self.motionManager.accelerometerUpdateInterval = .2;
      self.motionManager.gyroUpdateInterval = .2;
-     
      [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-                                              withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-                                                   [self outputAccelertionData:accelerometerData.acceleration];
-                                                   if(error){
-                                                        
-                                                        NSLog(@"%@", error);
-                                                   }
-                                              }];
-     
+          withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
+               [self outputAccelertionData:accelerometerData.acceleration];
+                    if(error){
+                         NSLog(@"%@", error);
+                    }}];
      [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-                                     withHandler:^(CMGyroData *gyroData, NSError *error) {
-                                          [self outputRotationData:gyroData.rotationRate];
-                                     }];
+          withHandler:^(CMGyroData *gyroData, NSError *error) {
+               [self outputRotationData:gyroData.rotationRate];}];
+     
+     // proximity
+     self.proximityTextField.text = @"0";
+     self.proximityTextField.backgroundColor = [UIColor blueColor];
+     [self.proximityTextField setTextColor: [UIColor whiteColor]];
+     // Proximity Sensor Notification
+     /*UIDevice *device = [UIDevice currentDevice];
+     device.proximityMonitoringEnabled = YES;
+     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(proximityChanged:) name:@"UIDeviceProximityStateDidChangeNotification" object:device];
+     */
+     
 
 }
 
@@ -409,6 +453,8 @@ self.updateIntervalLabel.text = [NSString stringWithFormat:@"%f", updateInterval
           self.rateField.text = rateString;
           
           self.rate2TextView.text = rateString;
+          self.rate2TextView.text = [NSString stringWithFormat:@"%hu", self.lastHeartRate1];
+
           NSLog(@"size: %lu value:%@ %@ %@",(unsigned long)data.length, dataString, myString, rateString);
           if(self.heartRate1 > self.heartRateMax1) {
                self.heartRateMax1 = self.heartRate1;
@@ -514,16 +560,76 @@ self.updateIntervalLabel.text = [NSString stringWithFormat:@"%f", updateInterval
      [url appendString: self.statusField.text];
      [url appendString: @"&pr=ios"];
      [url appendString: @"&hr="];
-     NSString *rateString = [NSString stringWithFormat:@"%hu", self.heartRate1];
-     [url appendString: rateString];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&hr="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"@lg="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&ln="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&al="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&ac="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&ts="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&be="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&s="]; // speed
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&pr="]; // provider
+     [url appendString: @"ios"];
+     //[url appendString: @"&te="]; // temp
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&p="]; // pressure
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&hu="]; // humidity
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&li="]; // light
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     // gravity
+     //[url appendString: @"&grx="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&gry="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&grz="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     // acceleration
+     [url appendString: @"&arx="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&ary="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&arz="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     // linear acceleration
+     //[url appendString: @"&lax="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&lay="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&laz="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     // rotational vector
+     [url appendString: @"&rvx="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.rotX.heartRate1]];
+     [url appendString: @"&rvy="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     [url appendString: @"&rvz="];
+     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     // gyro
+     //[url appendString: @"&ts="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&ts="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     //[url appendString: @"&ts="];
+     //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     
      NSLog(@"Sending: %@",url);
      
      NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString: url ]
-                                               cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                           timeoutInterval:60.0];
+                    cachePolicy:NSURLRequestUseProtocolCachePolicy
+                    timeoutInterval:60.0];
      
      // Create the NSMutableData to hold the received data.
-     // receivedData is an instance variable declared elsewhere.
      //receivedData = [NSMutableData dataWithCapacity: 0];
      
      // create the connection with the request
@@ -543,6 +649,19 @@ self.updateIntervalLabel.text = [NSString stringWithFormat:@"%f", updateInterval
 }
 
 
+- (CGFloat) DegreesToRadians: (CGFloat) degrees {
+     return degrees * M_PI / 180;
+}
+
+- (CGFloat) RadiansToDegrees: (CGFloat) radians {
+     return radians * 180 / M_PI;
+}
+
+// cleanup
+/*- (void)viewDidDisappear:(BOOL)animated {
+     [super viewDidDisappear:animated];
+     [self.motionManager stopAccelerometerUpdates];
+}*/
 
 
 @end

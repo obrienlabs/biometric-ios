@@ -60,6 +60,11 @@
 
 @property (assign) double lastHeading;
 @property (assign) double currHeading;
+@property (weak, nonatomic) IBOutlet UITextField *headingXTextField;
+@property (weak, nonatomic) IBOutlet UITextField *headingYTextField;
+@property (weak, nonatomic) IBOutlet UITextField *headingZTextField;
+
+
 @property (weak, nonatomic) IBOutlet UITextField *accelXtextField;
 @property (weak, nonatomic) IBOutlet UITextField *accelYtextField;
 @property (weak, nonatomic) IBOutlet UITextField *accelZtextField;
@@ -72,6 +77,8 @@
 @property (weak, nonatomic) IBOutlet UITextField *maxRotXtextField;
 @property (weak, nonatomic) IBOutlet UITextField *maxRotYtextField;
 @property (weak, nonatomic) IBOutlet UITextField *maxRotZtextField;
+// http://conecode.com/news/2012/06/ios-how-to-using-the-proximity-sensor/
+@property (weak, nonatomic) IBOutlet UITextField *proximityTextField;
 
 // http://nscookbook.com/2013/03/ios-programming-recipe-19-using-core-motion-to-access-gyro-and-accelerometer/
 
