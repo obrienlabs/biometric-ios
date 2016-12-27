@@ -21,6 +21,7 @@
 @property (assign) uint16_t heartRate1;
 @property (assign) uint16_t heartRate2;
 @property (assign) uint16_t count;
+@property (assign) uint16_t warningHeartRate;
 
 
 @end

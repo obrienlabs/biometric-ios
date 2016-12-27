@@ -5,9 +5,6 @@
 //  Created by Michael O'Brien on 2013-09-22.
 //  Copyright (c) 2013 Michael O'Brien. All rights reserved.
 // 20141018: added iOS 8.0 support for required location permissions
-// 20151018: added iOS 9.0 workaround for https requirement - still need rotation/heading
-//           https://forums.developer.apple.com/thread/3544
-// 20160406: fixed shifted screen after xcode 7 upgrade by setting project | general | launch screen to added launch screen storyboard
 //
 
 #import "BMViewController.h"
@@ -58,23 +55,18 @@
 //static NSString * const kServiceUUID = @"C15191A3-D214-4E6A-B533-0BCE41B833A6";
 //static NSString * const kCharacteristicUUID = @"2208559C-21AB-4263-B334-0CFE1946DF17";
 static NSString * const kServiceUUID_mio1 = @"398D853C-FE6D-A669-0E72-4A19D103CF0D";
-//Wahoo HRM v2.1
-//DF5AAD76-FA92-9B42-41A4-AABFE9482C8D
-//RHYTHM
-//C6E19981-0396-6AA6-B701-3D57F72A596D
 static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DEE87";
 //static NSString * const kCharacteristicUUID = @"2208559C-21AB-4263-B334-0CFE1946DF17";
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLPublicString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gpsbio/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-//static NSString * const cloudURLPublicString = @"http://138.120.149.110:8080/biometric/FrontController?action=setGps";//
-//static NSString * const cloudURLPrivateString = @"http://174.112.45.69:8180/biometric/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
-static NSString * const cloudURLPrivateString = @"http://biometric-s.us-east-1.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
+//static NSString * const cloudURLPrivateString = @"http://174.112.217.176:7001/logger/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
+//static NSString * const cloudURLPrivateString = @"http://biometric2.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://biometric-prd.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 
-//static NSString * const cloudURLPrivateString = @"http://obrien2.com/biometric/FrontController?action=setGps";//
-//static NSString * const cloudURLPrivateString = @"http://obrienlabs.elasticbeanstalk.com/FrontController?action=setGps";//
+//static NSString * const cloudURLPrivateString = @"http://127.0.0.1:8080/FrontController?action=setGps";//
+static NSString * const cloudURLPrivateString = @"http://obrienlabs.elasticbeanstalk.com/FrontController?action=setGps";//
 
 static int uploads = 0;
 static int serverRecordId = 0;
@@ -94,7 +86,7 @@ static int frame = 0;
 // flash the heart rate based on 100ms divisions
 static double heartDuration = 0;
 static double timerDuration = 0;
-//static double timerDruationStep = 0.1f;
+static double timerDruationStep = 0.1f;
 
 // track time since last connect
 int timeSinceLastBluetoothData = 0;
@@ -132,10 +124,7 @@ NSDateFormatter *dateFormat;
      // preferences
      // https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/UserDefaults/Preferences/Preferences.html#//apple_ref/doc/uid/10000059i-CH6-SW6
      // register preferences
-     NSString *userId = @"201505";
-     
-     // move the view back up
-     self.navigationController.navigationBar.translucent = NO;
+     NSString *userId = @"201407";
      
      NSDictionary *appDefaults = [NSDictionary dictionaryWithObject: userId forKey: @"user_id_preference"];
      [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
@@ -163,8 +152,8 @@ NSDateFormatter *dateFormat;
      self.bearingTextField.text = @"0";
      self.rateField.text = @"0";
      self.rate2TextView.text = @"0";
-     self.device2TextField.text = @"HR Device n/a";
-     self.deviceTextField.text = @"HR Device 2 n/a";
+     self.device2TextField.text = @"HR Device not found";
+     self.deviceTextField.text = @"HR Device not found";
      self.longTextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
      self.latTextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
      self.rate2TextView.textColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
@@ -569,8 +558,7 @@ NSDateFormatter *dateFormat;
           hrMonitorsFound++;
      }
      // special handling for the less reliable MIO pulse watch - put it last
-     if(![peripheral.name isEqual: @"MIO GLOBAL"] && ![peripheral.name isEqual: @"MIO GLOBAL LINK"]
-        && ![peripheral.name isEqual: @"RHYTHM+"]) {
+     if(![peripheral.name isEqual: @"MIO GLOBAL"] && ![peripheral.name isEqual: @"MIO GLOBAL LINK"]) {
           hrMonitor1Found = true;
           self.sensorManager.peripheral1 = peripheral;
           self.deviceTextField.text = peripheral.name;
@@ -771,7 +759,7 @@ NSDateFormatter *dateFormat;
      }
      [url appendString: @"&u="];
      [url appendString: self.statusField.text];
-          [url appendString: @"&de=iph5se"];
+          [url appendString: @"&de=iph6"];
      [url appendString: @"&pr="];//ios7"];
      [url appendString: [NSString stringWithFormat:@"%f",[[[UIDevice currentDevice] systemVersion] floatValue]]];
      if(self.dataObject.heartRate1 > 0) {
@@ -850,7 +838,6 @@ NSDateFormatter *dateFormat;
      [url appendString: [NSString stringWithFormat:@"%d", uploads]];
      
      //https://developer.apple.com/library/mac/DOCUMENTATION/Cocoa/Conceptual/URLLoadingSystem/Tasks/UsingNSURLConnection.html
-     // https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/index.html
      NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString: url ]
                     cachePolicy:NSURLRequestUseProtocolCachePolicy
                     timeoutInterval:60.0];

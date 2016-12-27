@@ -19,6 +19,7 @@ CGContextRef g;
 uint16_t heartRates[400];
 float accel[400];
 float rotate[400];
+static int warningHeartRate = 156; // merge with viewController
 int counter = 10;
 
 - (id)initWithFrame:(CGRect)frame
@@ -65,8 +66,18 @@ int counter = 10;
     g = UIGraphicsGetCurrentContext();
 
     // fill grey background
-    //CGContextSetRGBFillColor(g, (207.0/255.0), (207.0/255.0), 211.0/255.0, 1.0);
-    //CGContextFillRect(g, rect);//self.frame);
+    if((warningHeartRate < self.dataObject.heartRate1 || warningHeartRate < self.dataObject.heartRate2) && (counter == 4 || counter == 9))  {
+        //CGContextSetStrokeColorWithColor(g, [UIColor colorWithRed: 224.0/255.0f green:224.0/255.0f blue:32.0/255.0f alpha:1.0].CGColor);
+        CGContextSetRGBFillColor(g, (224.0/255.0), (240.0/255.0), 32.0/255.0, 1.0);
+        CGContextFillRect(g, rect);//self.frame);
+        //NSLog(@"Max: %d %d %d", self.warningHeartRate, self.dataObject.heartRate1, self.dataObject.heartRate2);
+        
+    } else {
+        //CGContextSetStrokeColorWithColor(g, [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:255.0/255.0f alpha:1.0].CGColor);
+        //CGContextSetRGBFillColor(g, (0.0/255.0), (0.0/255.0), 0.0/255.0, 1.0);
+        //CGContextFillRect(g, rect);//self.frame);
+        
+    }
     // setup graphics p.565
     //CGContextRef context = UIGraphicsGetCurrentContext();
      CGContextSetLineWidth(g,1.0);
@@ -103,7 +114,11 @@ int counter = 10;
         CGContextAddLineToPoint(g, xPos,yPos);
         CGContextStrokePath(g);
 
-        CGContextSetStrokeColorWithColor(g, [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:255.0/255.0f alpha:1.0].CGColor);
+        //if(0 < self.dataObject.heartRate1 && counter == 4) {
+        //    CGContextSetStrokeColorWithColor(g, [UIColor colorWithRed: 224.0/255.0f green:224.0/255.0f blue:32.0/255.0f alpha:1.0].CGColor);
+        //} else {
+            CGContextSetStrokeColorWithColor(g, [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:255.0/255.0f alpha:1.0].CGColor);
+        //}
         rotate[i] = rotate[i+1];
         yPos = 360.0 - (rotate[i]*15);
         CGContextMoveToPoint(g, xPos,360.0);
@@ -127,8 +142,6 @@ int counter = 10;
         CGContextAddLineToPoint(g, xPos,380);//yPos);
         CGContextStrokePath(g);
         
-        
-        
         if(heartRates[i+1] <= heartRates[i]) {
             CGContextSetStrokeColorWithColor(g, [UIColor colorWithRed: 128.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0].CGColor);
         } else {
@@ -137,7 +150,7 @@ int counter = 10;
         }
         // only update every 10th screen
         if(counter == 10) {
-        heartRates[i] = heartRates[i+1];
+            heartRates[i] = heartRates[i+1];
         }
         
         yPos = 380 - (heartRates[i]/2);
