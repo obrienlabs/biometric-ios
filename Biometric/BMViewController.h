@@ -14,6 +14,7 @@
 //@property (nonatomic, strong) CBPeripheralManager *peripheralManager;
 ////@property (nonatomic, strong) CBPeripheralDelegate *peripheralDelegate;
 //@property (nonatomic, strong) CBMutableCharacteristic *customCharacteristic;
+@property (weak, nonatomic) IBOutlet UITextField *deviceTextField;
 //@property (nonatomic, strong) CBMutableService *customService;
 @property (weak, nonatomic) IBOutlet UITextView *statusTextView;
 //@property (weak, nonatomic) IBOutlet UITextField *cloudField;
