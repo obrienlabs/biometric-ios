@@ -1,2 +1,2 @@
 # biometric-ios
-Biometric iOS client
+Biometric iOS client for the biometric java backend
