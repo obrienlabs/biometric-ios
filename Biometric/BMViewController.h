@@ -41,11 +41,13 @@
 //@property (weak, nonatomic) IBOutlet UILabel *uuidLabel;
 
 @property (nonatomic, strong) CBPeripheral *peripheral1;
-@property (nonatomic, strong) CBPeripheral *peripheral12;
-@property (nonatomic, strong) CBCharacteristic *aCharacteristic;
+@property (nonatomic, strong) CBPeripheral *peripheral2;
+@property (nonatomic, strong) CBCharacteristic *aCharacteristic1;
+@property (nonatomic, strong) CBCharacteristic *aCharacteristic2;
 @property (nonatomic, strong) CBCentralManager *manager;
 //@property (nonatomic, strong) CLLocationManager *locationManager;
 @property (weak, nonatomic) IBOutlet UITextField *bearingTextField;
+@property (weak, nonatomic) IBOutlet UITextField *locationCountTextField;
 
 @property (nonatomic, strong) NSMutableData *data1;
 @property (nonatomic, strong) NSMutableData *data2;
@@ -64,6 +66,9 @@
 @property (weak, nonatomic) IBOutlet UITextField *headingYTextField;
 @property (weak, nonatomic) IBOutlet UITextField *headingZTextField;
 
+@property (weak, nonatomic) IBOutlet UITextField *gravXtextField;
+@property (weak, nonatomic) IBOutlet UITextField *gravYtextField;
+@property (weak, nonatomic) IBOutlet UITextField *gravZtextField;
 
 @property (weak, nonatomic) IBOutlet UITextField *accelXtextField;
 @property (weak, nonatomic) IBOutlet UITextField *accelYtextField;
@@ -82,10 +87,7 @@
 
 // http://nscookbook.com/2013/03/ios-programming-recipe-19-using-core-motion-to-access-gyro-and-accelerometer/
 
-
-
-
+// reset keyboard p.92 of beginning iOS 5 dev
+- (IBAction)backgroundTap:(id)sender;
 - (IBAction)resetMaxValues:(id)sender;
-
-//-(IBACTION)DISmissKeyboardOnTap:(id)sender;
 @end
