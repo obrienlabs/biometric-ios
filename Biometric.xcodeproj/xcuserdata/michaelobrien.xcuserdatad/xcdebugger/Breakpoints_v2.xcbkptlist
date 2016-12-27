@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Biometric/BMViewController.m"
-            timestampString = "406215793.798581"
+            timestampString = "406358951.113206"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "202"
-            endingLineNumber = "202"
-            landmarkName = "-locationManager:didUpdateHeading:"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
+            landmarkName = "-onTimer"
             landmarkType = "5">
             <Locations>
                <Location
@@ -56,12 +56,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Biometric/BMViewController.m"
-            timestampString = "406215793.798581"
+            timestampString = "406359731.756723"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "780"
-            endingLineNumber = "780"
-            landmarkName = "-DegreesToRadians:"
+            startingLineNumber = "809"
+            endingLineNumber = "809"
+            landmarkName = "-httpPushToDataCenter"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

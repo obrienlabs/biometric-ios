@@ -7,12 +7,15 @@
 //
 
 #import "BMViewController.h"
+#import "BMUIView.h"
 // https://developer.apple.com/library/ios/documentation/userexperience/conceptual/LocationAwarenessPG/CoreLocation/CoreLocation.html
 #import <CoreLocation/CoreLocation.h>
 #import <UIKit/UIKit.h>
 #import <CoreMotion/CoreMotion.h>
 
+//BMModelEvent *dataObject2;
 @interface BMViewController ()
+
 @property (weak, nonatomic) IBOutlet UITextField *ratePeakField;
 @property (weak, nonatomic) IBOutlet UITextField *rateMinField;
 
@@ -55,15 +58,23 @@ static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DE
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-static NSString * const cloudURLString = @"http://obrienlabs.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+//static NSString * const cloudURLString = @"http://obrienlabs.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+//static NSString * const cloudURLString = @"http://obrienlabs.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+static NSString * const cloudURLString = @"http://174.118.237.17:7001/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 static int uploads = 0;
 static int uploadsColor = 0;
 static int locationCount = 0;
 static int LocationCountColor = 0;
 //static int uploadFlag = 1;
-static NSString * const USER_ID = @"2013110462";
+static NSString * const USER_ID = @"201310110";
 static double G = 9.8;
 int hrMonitorsFound = 0;
+static NSTimer *anNSTimer;
+static int frame = 0;
+// flash the heart rate based on 100ms divisions
+static double heartDuration = 0;
+static double timerDuration = 0;
+static double timerDruationStep = 0.1f;
 
 /*UIColor RED_COLOR = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];//[UIColor redColor];
 UIColor *GREEN_COLOR = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];//[UIColor greenColor];
@@ -77,28 +88,145 @@ double currentMaxAccelZ;
 double currentMaxRotX;
 double currentMaxRotY;
 double currentMaxRotZ;
-double rotX;
-double rotY;
-double rotZ;
-double accelX;
-double accelY;
-double accelZ;
-double bearing;
-double longitude;
-double latitude;
+//double rotX;
+//double rotY;
+//double rotZ;
+//double teslaX;
+//double teslaY;
+//double teslaZ;
+//double accelX;
+//double accelY;
+//double accelZ;
+//double bearing;
+//double longitude;
+//double latitude;
 double lastBearing;
 double lastLongitude;
 double lastLatitude;
 double lastAltitude;
 double lastLongitude;
 double lastLatitude;
-double altitude;
-double accuracyHorizontal;
-double accuracyVertical;
-double gravityX;
-double gravityY;
-double gravityZ;
-double speed;
+//double altitude;
+//double accuracyHorizontal;
+//double accuracyVertical;
+//double gravityX;
+//double gravityY;
+//double gravityZ;
+//double speed;
+
+// http://stackoverflow.com/questions/2367348/how-to-get-a-uiviewcontroller-from-a-uiview-via-code
+/*- (void)loadView {
+     [self.parentViewController loadView];
+     //BMUIView *view = [[BMUIView alloc]initWithFrame:[UIScreen mainScreen].applicationFrame];
+     //view.viewController = self;
+     //self.view = view;
+}*/
+
+- (void)viewDidLoad {
+     [super viewDidLoad];
+     // get data object
+     self.dataObject = [[BMModelEvent alloc ] init];
+     ((BMUIView*)self.view).dataObject = self.dataObject;
+     
+     // Do any additional setup after loading the view, typically from a nib.
+     // start Bluetooth 4.0 LE
+     self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+     // start Core Location
+     //locationManager = [[CLLocationManager alloc] init];
+     [self startStandardUpdates];
+     [self startHeadingEvents];
+     self.bearingTextField.text = @"0";
+     self.rateField.text = @"0";
+     self.rate2TextView.text = @"0";
+     self.device2TextField.text = @"HR Device not found";
+     self.deviceTextField.text = @"HR Device not found";
+     self.longTextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
+     self.latTextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
+     self.rate2TextView.textColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
+     self.rateField.textColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
+     // motion
+     self.motionManager = [[CMMotionManager alloc] init];
+     self.motionManager.accelerometerUpdateInterval = .1;
+     self.motionManager.gyroUpdateInterval = .1;
+     [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
+                                              withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
+                                                   [self outputAccelertionData:accelerometerData.acceleration];
+                                                   if(error){
+                                                        NSLog(@"%@", error);
+                                                   }}];
+     [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
+                                     withHandler:^(CMGyroData *gyroData, NSError *error) {
+                                          [self outputRotationData:gyroData.rotationRate];}];
+     
+     // proximity
+     self.proximityTextField.text = @"0";
+     self.proximityTextField.backgroundColor = [UIColor blueColor];
+     [self.proximityTextField setTextColor: [UIColor whiteColor]];
+     // Proximity Sensor Notification
+     /*UIDevice *device = [UIDevice currentDevice];
+      device.proximityMonitoringEnabled = YES;
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(proximityChanged:) name:@"UIDeviceProximityStateDidChangeNotification" object:device];
+      */
+     
+     // initially disable upload
+     self.uploadUISwitch.selected = false;
+     self.uploadUISwitch.on = false;
+     
+     //self.statusTextView.text = peripheral.description;
+     //self.statusField.text = peripheral.identifier.UUIDString;
+     self.statusField.text = USER_ID;
+     
+     // setup timer
+     anNSTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                  target:self
+                                                selector:@selector(onTimer)
+                                                userInfo:nil
+                                                 repeats:YES];
+     }
+
+- (void)onTimer {
+     // flash heartrate based on 100ms flash every 1000ms
+     heartDuration+=(self.lastHeartRate1 / 60.0);
+     if(heartDuration > 10) {
+          heartDuration = 0;
+          self.rateField.backgroundColor = [UIColor colorWithRed: 32.0/255.0f green:16.0/255.0f blue:255.0/255.0f alpha:1.0];
+          //[self.rateField setTextColor: [UIColor whiteColor]];
+     } else {
+          self.rateField.backgroundColor = [UIColor blackColor];
+     }
+     
+     // get upload state from the switch
+     if(self.uploadUISwitch.isOn) {
+          //if(uploadFlag > 0) {
+          if(frame == 10) {
+               frame = 0;
+               self.uploadConterTextField.backgroundColor = [UIColor colorWithRed: 224.0/255.0f green:255.0/255.0f blue:64.0/255.0f alpha:1.0];
+               [self.uploadConterTextField setTextColor: [UIColor blackColor]];
+               [self httpPushToDataCenter];
+          } else {
+               frame++;
+               self.uploadConterTextField.backgroundColor = [UIColor colorWithRed: 8.0/255.0f green:64.0/255.0f blue:16.0/255.0f alpha:1.0];
+               [self.uploadConterTextField setTextColor: [UIColor whiteColor]];
+          }
+          
+     } else {
+          //self.cloudField.text = @"Upload disabled";
+          self.uploadConterTextField.backgroundColor = [UIColor redColor];
+          [self.uploadConterTextField setTextColor: [UIColor whiteColor]];
+          //[anNSTimer invalidate];
+     }
+     // pass values to the view
+     //BMUIView *aView = (BMUIView)self.view);
+     //aView.heartRate1 = 10;
+     //NSLog(@"Rate %d",self.dataObject.heartRate1);
+     ((BMUIView*)self.view).dataObject = self.dataObject;
+     [((BMUIView*)self.view) update];
+}
+
+- (void)didReceiveMemoryWarning {
+     [super didReceiveMemoryWarning];
+     // Dispose of any resources that can be recreated.
+}
 
 - (void)startSignificantChangeUpdates
 {
@@ -123,15 +251,15 @@ double speed;
           //NSLog(@"latitude %+.6f, longitude %+.6f\n",
           //      location.coordinate.latitude,
           //      location.coordinate.longitude);
-     lastLongitude = longitude;
-     lastLatitude = latitude;
-     speed = location.speed;
-          longitude = location.coordinate.longitude;
-          latitude = location.coordinate.latitude;
-          NSString *latString = [NSString stringWithFormat:@"%+.5f", latitude];
-          NSString *lonString = [NSString stringWithFormat:@"%+.5f", longitude];
-          [self toggleColor: longitude - lastLongitude onField: self.longTextField withFilter:0.000001 colorSet: 1];
-     [self toggleColor: latitude - lastLatitude onField: self.latTextField withFilter:0.000001 colorSet: 1];
+     lastLongitude = self.dataObject.longitude;
+     lastLatitude = self.dataObject.latitude;
+     self.dataObject.speed = location.speed;
+          self.dataObject.longitude = location.coordinate.longitude;
+          self.dataObject.latitude = location.coordinate.latitude;
+          NSString *latString = [NSString stringWithFormat:@"%+.5f", self.dataObject.latitude];
+          NSString *lonString = [NSString stringWithFormat:@"%+.5f", self.dataObject.longitude];
+          [self toggleColor: self.dataObject.longitude - lastLongitude onField: self.longTextField withFilter:0.000001 colorSet: 1];
+     [self toggleColor: self.dataObject.latitude - lastLatitude onField: self.latTextField withFilter:0.000001 colorSet: 1];
      self.longTextField.text = lonString;
           self.latTextField.text = latString;
           _altTextField.text = [NSString stringWithFormat:@"%.1f", location.altitude];
@@ -139,11 +267,11 @@ double speed;
      
           
           // altitude and accuracy
-     lastAltitude = altitude;
-          altitude = location.altitude;
-          accuracyVertical = location.verticalAccuracy;
-          accuracyHorizontal = location.horizontalAccuracy;
-               [self toggleColor: altitude - lastAltitude onField: self.altTextField withFilter:0.5 colorSet: 0];
+     lastAltitude = self.dataObject.altitude;
+          self.dataObject.altitude = location.altitude;
+          self.dataObject.accuracyVertical = location.verticalAccuracy;
+          self.dataObject.accuracyHorizontal = location.horizontalAccuracy;
+               [self toggleColor: self.dataObject.altitude - lastAltitude onField: self.altTextField withFilter:0.5 colorSet: 0];
           
      //}
 }
@@ -159,7 +287,7 @@ double speed;
      locationManager.desiredAccuracy = kCLLocationAccuracyKilometer;
      
      // Set a movement threshold for new events.
-     locationManager.distanceFilter = 5;//500; // meters
+     locationManager.distanceFilter = 2;//500; // meters
      
      [locationManager startUpdatingLocation];
 }
@@ -195,24 +323,24 @@ double speed;
      // Use the true heading if it is valid.
      CLLocationDirection  theHeading = ((newHeading.trueHeading > 0) ?
                                         newHeading.trueHeading : newHeading.magneticHeading);
-     self.lastHeading = self.currHeading;
-     self.currHeading = theHeading;
-     [self toggleColor: self.currHeading - self.lastHeading onField:self.bearingTextField withFilter: 3 colorSet: 0];
+     self.lastHeading = self.dataObject.heading;
+     self.dataObject.heading = theHeading;
+     [self toggleColor: self.dataObject.heading - self.lastHeading onField:self.bearingTextField withFilter: 3 colorSet: 0];
      NSString *headingString = [NSString stringWithFormat:@"%.0f", theHeading]; // integer field
      self.bearingTextField.text = headingString;
-     bearing = theHeading;
+     self.dataObject.bearing = theHeading;
      //[self updateHeadingDisplays];
      
      // max x,y,z
-     double teslaX = newHeading.x;
-     double teslaY = newHeading.y;
-     double teslaZ = newHeading.z;
-     self.headingXTextField.text = [NSString stringWithFormat:@"%+.2f", teslaX];
-     self.headingYTextField.text = [NSString stringWithFormat:@"%+.2f", teslaY];
-     self.headingZTextField.text = [NSString stringWithFormat:@"%+.2f", teslaZ];
-     [self toggleColor: teslaX onField:self.headingXTextField withFilter:3 colorSet: 0];
-     [self toggleColor: teslaY onField:self.headingYTextField withFilter:3 colorSet: 0];
-     [self toggleColor: teslaZ onField:self.headingZTextField withFilter:3 colorSet: 0];
+     self.dataObject.teslaX = newHeading.x;
+     self.dataObject.teslaY = newHeading.y;
+     self.dataObject.teslaZ = newHeading.z;
+     self.headingXTextField.text = [NSString stringWithFormat:@"%+.2f", self.dataObject.teslaX];
+     self.headingYTextField.text = [NSString stringWithFormat:@"%+.2f", self.dataObject.teslaY];
+     self.headingZTextField.text = [NSString stringWithFormat:@"%+.2f", self.dataObject.teslaZ];
+     [self toggleColor: self.dataObject.teslaX onField:self.headingXTextField withFilter:1 colorSet: 0];
+     [self toggleColor: self.dataObject.teslaY onField:self.headingYTextField withFilter:1 colorSet: 0];
+     [self toggleColor: self.dataObject.teslaZ onField:self.headingZTextField withFilter:1 colorSet: 0];
      
 }
 
@@ -272,21 +400,21 @@ double speed;
 -(void)outputAccelertionData:(CMAcceleration)acceleration
 {
      
-     accelX = acceleration.x;
-     accelY = acceleration.y;
-     accelZ = acceleration.z;
+     self.dataObject.accelX = acceleration.x;
+     self.dataObject.accelY = acceleration.y;
+     self.dataObject.accelZ = acceleration.z;
      
-     self.accelXtextField.text = [NSString stringWithFormat:@"%.3fg",accelX];
+     self.accelXtextField.text = [NSString stringWithFormat:@"%.3fg", self.dataObject.accelX];
      if(fabs(acceleration.x) > fabs(currentMaxAccelX))
      {
           currentMaxAccelX = acceleration.x;
      }
-     self.accelYtextField.text = [NSString stringWithFormat:@"%.3fg",accelY];
+     self.accelYtextField.text = [NSString stringWithFormat:@"%.3fg", self.dataObject.accelY];
      if(fabs(acceleration.y) > fabs(currentMaxAccelY))
      {
           currentMaxAccelY = acceleration.y;
      }
-     self.accelZtextField.text = [NSString stringWithFormat:@"%.3fg",accelZ];
+     self.accelZtextField.text = [NSString stringWithFormat:@"%.3fg", self.dataObject.accelZ];
      if(fabs(acceleration.z) > fabs(currentMaxAccelZ))
      {
           currentMaxAccelZ = acceleration.z;
@@ -301,9 +429,9 @@ double speed;
      [self toggleColor: currentMaxAccelX onField: self.maxAccelXtextField withFilter:0.05 colorSet: 0];
      [self toggleColor: currentMaxAccelY onField: self.maxAccelYtextField withFilter:0.05 colorSet: 0];
      [self toggleColor: currentMaxAccelZ onField: self.maxAccelZtextField withFilter:0.05 colorSet: 0];
-     [self toggleColor: accelX onField: self.accelXtextField withFilter:0.05 colorSet: 0];
-     [self toggleColor: accelY onField: self.accelYtextField withFilter:0.05 colorSet: 0];
-     [self toggleColor: accelZ onField: self.accelZtextField withFilter:0.05 colorSet: 0];
+     [self toggleColor: self.dataObject.accelX onField: self.accelXtextField withFilter:0.05 colorSet: 0];
+     [self toggleColor: self.dataObject.accelY onField: self.accelYtextField withFilter:0.05 colorSet: 0];
+     [self toggleColor: self.dataObject.accelZ onField: self.accelZtextField withFilter:0.05 colorSet: 0];
 
      //
      //gravityX =
@@ -335,68 +463,19 @@ double speed;
      self.maxRotZtextField.text = [NSString stringWithFormat:@"%.3f",currentMaxRotZ];
 
      // set colors
-     [self toggleColor: rotation.x onField: self.rotXtextField withFilter:0.05 colorSet: 0];
-     [self toggleColor: rotation.y onField: self.rotYtextField withFilter:0.05 colorSet: 0];
-     [self toggleColor: rotation.z onField: self.rotZtextField withFilter:0.05 colorSet: 0];
+     [self toggleColor: rotation.x onField: self.rotXtextField withFilter:0.01 colorSet: 0];
+     [self toggleColor: rotation.y onField: self.rotYtextField withFilter:0.01 colorSet: 0];
+     [self toggleColor: rotation.z onField: self.rotZtextField withFilter:0.01 colorSet: 0];
      [self toggleColor: currentMaxRotX onField: self.maxRotXtextField withFilter:0.1 colorSet: 0];
      [self toggleColor: currentMaxRotY onField: self.maxRotYtextField withFilter:0.1 colorSet: 0];
      [self toggleColor: currentMaxRotZ onField: self.maxRotZtextField withFilter:0.1 colorSet: 0];
-     rotX = rotation.x;
-     rotY = rotation.y;
-     rotZ = rotation.z;
+     self.dataObject.rotationX = rotation.x;
+     self.dataObject.rotationY = rotation.y;
+     self.dataObject.rotationZ = rotation.z;
 
      
 }
 
-- (void)viewDidLoad
-{
-     [super viewDidLoad];
-     // Do any additional setup after loading the view, typically from a nib.
-     // start Bluetooth 4.0 LE
-     self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
-     // start Core Location
-     //locationManager = [[CLLocationManager alloc] init];
-     [self startStandardUpdates];
-     [self startHeadingEvents];
-     self.bearingTextField.text = @"0";
-     self.longTextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
-     self.latTextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
-     self.rate2TextView.textColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
-     // motion
-     self.motionManager = [[CMMotionManager alloc] init];
-     self.motionManager.accelerometerUpdateInterval = .2;
-     self.motionManager.gyroUpdateInterval = .2;
-     [self.motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-          withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-               [self outputAccelertionData:accelerometerData.acceleration];
-                    if(error){
-                         NSLog(@"%@", error);
-                    }}];
-     [self.motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-          withHandler:^(CMGyroData *gyroData, NSError *error) {
-               [self outputRotationData:gyroData.rotationRate];}];
-     
-     // proximity
-     self.proximityTextField.text = @"0";
-     self.proximityTextField.backgroundColor = [UIColor blueColor];
-     [self.proximityTextField setTextColor: [UIColor whiteColor]];
-     // Proximity Sensor Notification
-     /*UIDevice *device = [UIDevice currentDevice];
-     device.proximityMonitoringEnabled = YES;
-     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(proximityChanged:) name:@"UIDeviceProximityStateDidChangeNotification" object:device];
-     */
-     
-     // initially disable upload
-     self.uploadUISwitch.selected = false;
-     self.uploadUISwitch.on = false;
-
-}
-
-- (void)didReceiveMemoryWarning
-{
-     [super didReceiveMemoryWarning];
-     // Dispose of any resources that can be recreated.
-}
 
 // unused
 - (IBAction)readButtonTouchUpInside:(id)sender {
@@ -435,9 +514,6 @@ double speed;
           self.peripheral1 = peripheral;
           NSLog(@"Connecting to peripheral1 %@", peripheral);
           self.deviceTextField.text = peripheral.name;
-          //self.statusTextView.text = peripheral.description;
-          //self.statusField.text = peripheral.identifier.UUIDString;
-          self.statusField.text = USER_ID;
           // Connects to the discovered peripheral
           //[self.manager connectPeripheral:peripheral options:nil];
           [self.manager connectPeripheral:peripheral options:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey]];
@@ -536,66 +612,72 @@ double speed;
           // from apple
           if(nil != data) {
                [self extractHeartRate:characteristic.value onPeripheral: peripheral];
-               NSString *rateString = [NSString stringWithFormat:@"%hu", self.heartRate1];
+               NSString *rateString = [NSString stringWithFormat:@"%hu", self.dataObject.heartRate1];
                self.rateField.text = rateString;
                if(peripheral == self.peripheral2) {
-                    rateString = [NSString stringWithFormat:@"%hu", self.heartRate1];
-                    self.rate2TextView.text = [NSString stringWithFormat:@"%hu", self.heartRate2];;
+                    rateString = [NSString stringWithFormat:@"%hu", self.dataObject.heartRate1];
+                    self.rate2TextView.text = [NSString stringWithFormat:@"%hu", self.dataObject.heartRate2];;
                     self.rate2TextView.text = [NSString stringWithFormat:@"%hu", self.lastHeartRate2];
                }
 
-               NSLog(@"size: %lu value:%@ %@ %@",(unsigned long)data.length, dataString, myString, rateString);
-               if(self.heartRate1 > self.heartRateMax1) {
-                    self.heartRateMax1 = self.heartRate1;
+               //NSLog(@"size: %lu value:%@ %@ %@",(unsigned long)data.length, dataString, myString, rateString);
+               if(self.dataObject.heartRate1 > self.heartRateMax1) {
+                    self.heartRateMax1 = self.dataObject.heartRate1;
                     self.ratePeakField.text = rateString;
                     //self.maxRate2TextField.text = rateString;
                }
-               if(self.heartRate1 < self.heartRateMin1) {
-                    self.heartRateMin1 = self.heartRate1;
+               if(self.dataObject.heartRate1 < self.heartRateMin1) {
+                    self.heartRateMin1 = self.dataObject.heartRate1;
                     self.rateMinField.text = rateString;
                     //self.minRate2TextField.text = rateString;
                }
           
-               if(self.lastHeartRate1 < self.heartRate1) {
-                    self.rateField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
-                    [self.rateField setTextColor: [UIColor whiteColor]];
+               if(self.lastHeartRate1 < self.dataObject.heartRate1) {
+                    //self.rateField.backgroundColor = [UIColor colorWithRed: 128.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
+                    //[self.rateField setTextColor: [UIColor whiteColor]];
+                    self.rateField.textColor = [UIColor colorWithRed: 128.0/255.0f green:224.0/255.0f blue:255.0/255.0f alpha:1.0];
                }
-               if(self.lastHeartRate1 == self.heartRate1) {
-                    self.rateField.backgroundColor = [UIColor colorWithRed: 192.0/255.0f green:255.0/255.0f blue:32.0/255.0f alpha:1.0];
-                    [self.rateField setTextColor: [UIColor blackColor]];
+               if(self.lastHeartRate1 == self.dataObject.heartRate1) {
+                    //self.rateField.backgroundColor = [UIColor colorWithRed: 192.0/255.0f green:255.0/255.0f blue:32.0/255.0f alpha:1.0];
+                    //[self.rateField setTextColor: [UIColor blackColor]];
+                    self.rateField.textColor = [UIColor colorWithRed: 255.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0];
                }
-               if(self.lastHeartRate1 > self.heartRate1) {
-                    self.rateField.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
-                    [self.rateField setTextColor: [UIColor whiteColor]];
+               if(self.lastHeartRate1 > self.dataObject.heartRate1) {
+                    //self.rateField.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
+                    //[self.rateField setTextColor: [UIColor whiteColor]];
+                    self.rateField.textColor = [UIColor colorWithRed: 255.0/255.0f green:160.0/255.0f blue:64.0/255.0f alpha:1.0];
                }
+               
+               // flash HR
+               //heartDuration+= (self.lastHeartRate1 / 60.0);
 
                // copy of above
-               if(self.heartRate2 > self.heartRateMax2) {
-                    self.heartRateMax2 = self.heartRate2;
+               if(self.dataObject.heartRate2 > self.heartRateMax2) {
+                    self.heartRateMax2 = self.dataObject.heartRate2;
                     //self.ratePeakField.text = rateString;
                     self.maxRate2TextField.text = rateString;
                }
-               if(self.heartRate2 < self.heartRateMin2) {
-                    self.heartRateMin2 = self.heartRate2;
+               if(self.dataObject.heartRate2 < self.heartRateMin2) {
+                    self.heartRateMin2 = self.dataObject.heartRate2;
                     //self.rateMinField.text = rateString;
                     self.minRate2TextField.text = rateString;
                }
                
-               if(self.lastHeartRate2 < self.heartRate2) {
+               if(self.lastHeartRate2 < self.dataObject.heartRate2) {
                     self.rate2TextView.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:64.0/255.0f blue:255.0/255.0f alpha:1.0];
                     [self.rate2TextView setTextColor: [UIColor whiteColor]];
                }
-               if(self.lastHeartRate2 == self.heartRate2) {
+               if(self.lastHeartRate2 == self.dataObject.heartRate2) {
                     self.rate2TextView.backgroundColor = [UIColor colorWithRed: 192.0/255.0f green:255.0/255.0f blue:32.0/255.0f alpha:1.0];
                     [self.rate2TextView setTextColor: [UIColor blackColor]];
                }
-               if(self.lastHeartRate2 > self.heartRate2) {
+               if(self.lastHeartRate2 > self.dataObject.heartRate2) {
                     self.rate2TextView.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:0.0/255.0f blue:80.0/255.0f alpha:1.0];
                     [self.rate2TextView setTextColor: [UIColor whiteColor]];
                }
           
                // get upload state from the switch
-               if(self.uploadUISwitch.isOn) {
+               /*if(self.uploadUISwitch.isOn) {
                     //if(uploadFlag > 0) {
                     [self httpPushToDataCenter];
                     self.uploadConterTextField.backgroundColor = [UIColor greenColor];
@@ -604,7 +686,7 @@ double speed;
                     //self.cloudField.text = @"Upload disabled";
                     self.uploadConterTextField.backgroundColor = [UIColor redColor];
                     [self.uploadConterTextField setTextColor: [UIColor whiteColor]];
-               }
+               }*/
           }
      }
 }
@@ -651,11 +733,11 @@ double speed;
      
      //uint16_t oldBpm = self.heartRate;
      if(peripheral == self.peripheral2) {
-          self.lastHeartRate2 = self.heartRate2;
-          self.heartRate2 = bpm;
+          self.lastHeartRate2 = self.dataObject.heartRate2;
+          self.dataObject.heartRate2 = bpm;
      } else {
-          self.lastHeartRate1 = self.heartRate1;
-          self.heartRate1 = bpm;
+          self.lastHeartRate1 = self.dataObject.heartRate1;
+          self.dataObject.heartRate1 = bpm;
      }
 }
 - (IBAction)rateDown:(id)sender {
@@ -678,26 +760,30 @@ double speed;
      
      [url appendString: self.statusField.text];
      [url appendString: @"&pr=ios"];
-     [url appendString: @"&hr="];
-     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
-     [url appendString: @"&hr2="];
-     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate2]];
-     [url appendString: @"&hr1="];
-     [url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
+     if(self.dataObject.heartRate1 > 0) {
+          [url appendString: @"&hr="];
+          [url appendString: [NSString stringWithFormat:@"%hu", self.dataObject.heartRate1]];
+          [url appendString: @"&hr1="];
+          [url appendString: [NSString stringWithFormat:@"%hu", self.dataObject.heartRate1]];
+     }
+     if(self.dataObject.heartRate2 > 0) {
+          [url appendString: @"&hr2="];
+          [url appendString: [NSString stringWithFormat:@"%hu", self.dataObject.heartRate2]];
+     }
      [url appendString: @"&lg="];
-     [url appendString: [NSString stringWithFormat:@"%f", longitude]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.longitude]];
      [url appendString: @"&lt="];
-     [url appendString: [NSString stringWithFormat:@"%f", latitude]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.latitude]];
      [url appendString: @"&al=0"];
-     [url appendString: [NSString stringWithFormat:@"%f", altitude]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.altitude]];
      [url appendString: @"&ac="]; // accuracy (grid on ios)
-     [url appendString: [NSString stringWithFormat:@"%f", accuracyHorizontal]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.accuracyHorizontal]];
      //[url appendString: @"&ts=1383504393030"];
      //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
      [url appendString: @"&be="];
      [url appendString: self.bearingTextField.text];//] substringWithRange:NSMakeRange(1, self.bearingTextField.text.length - 1)]]; // fix the plus
      [url appendString: @"&s="]; // speed
-     [url appendString: [NSString stringWithFormat:@"%f", speed]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.speed]];
      //[url appendString: @"&te="]; // temp
      //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
      //[url appendString: @"&p="]; // pressure
@@ -715,11 +801,11 @@ double speed;
      //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
      // acceleration
      [url appendString: @"&arx="];
-     [url appendString: [NSString stringWithFormat:@"%f", accelX]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.accelX]];
      [url appendString: @"&ary="];
-     [url appendString: [NSString stringWithFormat:@"%f", accelY]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.accelY]];
      [url appendString: @"&arz="];
-     [url appendString: [NSString stringWithFormat:@"%f", accelZ]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.accelZ]];
      // linear acceleration
      //[url appendString: @"&lax="];
      //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
@@ -729,11 +815,11 @@ double speed;
      //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
      // rotational vector
      [url appendString: @"&rvx="];
-     [url appendString: [NSString stringWithFormat:@"%f", rotX]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.rotationX]];
      [url appendString: @"&rvy="];
-     [url appendString: [NSString stringWithFormat:@"%f", rotY]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.rotationY]];
      [url appendString: @"&rvz="];
-     [url appendString: [NSString stringWithFormat:@"%f", rotZ]];
+     [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.rotationZ]];
      // gyro
      //[url appendString: @"&ts="];
      //[url appendString: [NSString stringWithFormat:@"%hu", self.heartRate1]];
@@ -745,7 +831,7 @@ double speed;
      //url appendString: @"&mfx="];
      //[url appendString: [NSString stringWithFormat:@"%f", self.]];
      
-     NSLog(@"Sending: %@",url);
+     //NSLog(@"Sending: %@",url);
      
      NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString: url ]
                     cachePolicy:NSURLRequestUseProtocolCachePolicy
