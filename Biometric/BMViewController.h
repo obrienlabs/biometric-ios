@@ -16,12 +16,12 @@
 //@property (nonatomic, strong) CBMutableCharacteristic *customCharacteristic;
 //@property (nonatomic, strong) CBMutableService *customService;
 @property (weak, nonatomic) IBOutlet UITextView *statusTextView;
-@property (weak, nonatomic) IBOutlet UITextField *cloudField;
-@property (weak, nonatomic) IBOutlet UITextField *uuidField;
+//@property (weak, nonatomic) IBOutlet UITextField *cloudField;
+//@property (weak, nonatomic) IBOutlet UITextField *uuidField;
 @property (weak, nonatomic) IBOutlet UIButton *readButton;
 
 - (IBAction)readTouchDown:(id)sender;
-@property (weak, nonatomic) IBOutlet UILabel *uuidLabel;
+//@property (weak, nonatomic) IBOutlet UILabel *uuidLabel;
 
 @property (nonatomic, strong) CBPeripheral *peripheral;
 @property (nonatomic, strong) CBCharacteristic *aCharacteristic;
@@ -31,4 +31,5 @@
 @property (assign) uint16_t heartRateMax;
 @property (assign) uint16_t heartRateMin;
 
+//-(IBACTION)DISmissKeyboardOnTap:(id)sender;
 @end

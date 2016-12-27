@@ -14,7 +14,7 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *rateField;
 @property (weak, nonatomic) IBOutlet UITextField *statusField;
-
+@property (weak, nonatomic) IBOutlet UITextField *statusTextField;
 @end
 
 @implementation BMViewController
@@ -27,12 +27,14 @@ static NSString * const kServiceUUID = @"398D853C-FE6D-A669-0E72-4A19D103CF0D";
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
 static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gps/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+static int uploads = 0;
+static int uploadFlag = 1;
+static NSString * const USER_ID = @"20131027";
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    //self.peripheralManager = [[CBPeripheralManager alloc] initWithDelegate:self queue:nil];
     self.manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
 }
 
@@ -41,39 +43,13 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-/*
-- (void)setupService {
-    // Creates the characteristic UUID
-    CBUUID *characteristicUUID = [CBUUID UUIDWithString:kCharacteristicUUID];
-    
-    // Creates the characteristic
-    self.customCharacteristic = [[CBMutableCharacteristic alloc] initWithType:characteristicUUID properties:CBCharacteristicPropertyNotify value:nil permissions:CBAttributePermissionsReadable];
-    
-    // Creates the service UUID
-    CBUUID *serviceUUID = [CBUUID UUIDWithString:kServiceUUID];
-    
-    // Creates the service and adds the characteristic to it
-    self.customService = [[CBMutableService alloc] initWithType:serviceUUID primary:YES];
-    
-    // Sets the characteristics for this service
-    [self.customService setCharacteristics:@[self.customCharacteristic]];
-    
-    // Publishes the service
-    [self.peripheralManager addService:self.customService];
-}
 
-- (void)peripheralManager:(CBPeripheralManager *)peripheral didAddService:(CBService *)service error:(NSError *)error {
-    if (error == nil) {
-        // Starts advertising the service
-        [self.peripheralManager startAdvertising:@{ CBAdvertisementDataLocalNameKey : @"ICServer", CBAdvertisementDataServiceUUIDsKey : @[[CBUUID UUIDWithString:kServiceUUID]] }];
-    }
-}
-*/
 
 - (IBAction)readButtonTouchUpInside:(id)sender {
     [self.peripheral readValueForCharacteristic:self.aCharacteristic];
     NSLog(@"reading");
     self.rateField.text = @"Reading...";
+     //uploadFlag = 1 - uploadFlag;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
@@ -83,12 +59,13 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
     if (self.peripheral != peripheral) {
         self.peripheral = peripheral;
         NSLog(@"Connecting to peripheral %@", peripheral);
-        self.statusTextView.text = peripheral.description;
-        self.statusField.text = peripheral.identifier.UUIDString;
+        //self.statusTextView.text = peripheral.description;
+        //self.statusField.text = peripheral.identifier.UUIDString;
+         self.statusField.text = USER_ID;
         // Connects to the discovered peripheral
         //[self.manager connectPeripheral:peripheral options:nil];
          [self.manager connectPeripheral:peripheral options:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:CBConnectPeripheralOptionNotifyOnDisconnectionKey]];
-        self.statusTextView.text = peripheral.description;
+        //self.statusTextView.text = peripheral.description;
     }
 }
 
@@ -100,9 +77,7 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
     // Sets the peripheral delegate
     [self.peripheral setDelegate:self];
     // Asks the peripheral to discover the service
-    //[self.peripheral discoverServices:@[ [CBUUID UUIDWithString:kServiceUUID] ]];
     [self.peripheral discoverServices:@[  ]];
-     //[self.peripheral discoverServices:nil forService:@[  ]];
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
@@ -110,14 +85,11 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
         case CBCentralManagerStatePoweredOn:
             // Scans for any peripheral
             NSLog(@"Setup");
-            //[self.manager scanForPeripheralsWithServices:@[ [CBUUID UUIDWithString:kServiceUUID] ] options:@{CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
-            //self.manager scanForPeripheralsWithServices:@[  ]
-            //                                     options:@{CBCentralManagerScanOptionAllowDuplicatesKey : @YES }]; // discover only - stop later
             [self.manager scanForPeripheralsWithServices:[NSArray arrayWithObject:[CBUUID UUIDWithString:@"180D"]] options:nil];
-            self.statusField.text = @"Setup";
+            //self.statusField.text = @"Setup";
             self.rateField.text = @"0";
-            self.cloudField.text = cloudURLString;
-            self.statusTextView.text = @"Discovering LE Bluetooth devices";
+            //self.cloudField.text = cloudURLString;
+            /*self.statusTextView.text = @"Discovering LE Bluetooth devices";*/
               self.heartRateMax = 0;
               self.heartRateMin = 999;
             break;
@@ -133,7 +105,7 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
         //[self cleanup];
         return;
     }
-    self.statusField.text = aPeripheral.services.description;
+//self.statusField.text = aPeripheral.services.description;
     for (CBService *service in aPeripheral.services) {
         NSLog(@"Service found with UUID: %@", service.UUID);
         
@@ -155,14 +127,12 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
      for (CBCharacteristic *characteristic in service.characteristics) {
           NSLog(@"Discovered characteristic %@ UUID: %@", characteristic,characteristic.UUID);
           if([characteristic.UUID isEqual:[CBUUID UUIDWithString:HEARTRATE_UUID]]) {
-               self.statusField.text = @"C:2A37 heartrate found";
-               self.uuidField.text = characteristic.UUID.description;
+               //self.uuidField.text = characteristic.UUID.description;
                self.aCharacteristic = characteristic;
                [peripheral readValueForCharacteristic:characteristic];
                [peripheral setNotifyValue:YES forCharacteristic:characteristic];
           }
-             /* Write heart rate control point - key repeating callback to didUpdateValueForCharacteristic listener */
-          if([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"2A39"]]) {
+           if([characteristic.UUID isEqual:[CBUUID UUIDWithString:@"2A39"]]) {
                uint8_t value = 1;
                NSData* valData = [NSData dataWithBytes:(void*)&value length:sizeof(value)];
                [peripheral writeValue:valData forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
@@ -179,7 +149,7 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
     NSString *dataString = [NSString stringWithFormat:@"%@", data  ];
     NSString* myString;
     myString = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-    self.uuidField.text = dataString;
+    //self.uuidField.text = dataString;
           // from apple
           [self extractHeartRate:characteristic.value];
           NSString *rateString = [NSString stringWithFormat:@"%hu", self.heartRate];
@@ -193,7 +163,11 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
                self.heartRateMin = self.heartRate;
                self.rateMinField.text = rateString;
           }
-          [self httpPushToDataCenter];
+          if(uploadFlag > 0) {
+               [self httpPushToDataCenter];
+          } else {
+               //self.cloudField.text = @"Upload disabled";
+          }
      }
 }
 
@@ -201,11 +175,6 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
     if (error) {
         NSLog(@"Error changing notification state: %@", error.localizedDescription);
     }
-    
-    // Exits if it's not the transfer characteristic
-    /*if (![characteristic.UUID isEqual:[CBUUID UUIDWithString:kCharacteristicUUID]]) {
-        return;
-    }*/
     
     // Notification has started
     if (characteristic.isNotifying) {
@@ -245,19 +214,30 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
      //uint16_t oldBpm = self.heartRate;
      self.heartRate = bpm;
 }
+- (IBAction)rateDown:(id)sender {
+     [[self view] endEditing:YES];
+}
 
 // use case: reconnect after bt signal lost/regained
 
+// dismiss keyboard for all editing textviews
+/*-(IBACTION)DISmissKeyboardOnTap:(id)sender {
+     [[self view] endEditing:YES];
+}*/
 
 
 // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/URLLoadingSystem/Tasks/UsingNSURLConnection.html
 - (void) httpPushToDataCenter {
      NSMutableString *url = [[NSMutableString alloc ]init ];
      [url appendString: cloudURLString];
-     [url appendString: @"&u=201310272&pr=ios"];
+     [url appendString: @"&u="];
+     
+     [url appendString: self.statusField.text];
+     [url appendString: @"&pr=ios"];
      [url appendString: @"&hr="];
      NSString *rateString = [NSString stringWithFormat:@"%hu", self.heartRate];
      [url appendString: rateString];
+     NSLog(@"Sending: %@",url);
 
      NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString: url ]
                                                cachePolicy:NSURLRequestUseProtocolCachePolicy
@@ -275,6 +255,11 @@ static NSString * const cloudURLString = @"https://obrienscience-obrienlabs.java
           //receivedData = nil;
           
           // Inform the user that the connection failed.
+          //self.cloudField.text = @"No connection";
+     } else {
+          uploads++;
+          NSString *uploadsString = [NSString stringWithFormat:@"%i", uploads];
+          //self.cloudField.text = uploadsString;
      }
 }
 
