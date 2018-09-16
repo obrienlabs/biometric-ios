@@ -67,8 +67,8 @@ static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DE
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLPublicString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gpsbio/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-//static NSString * const cloudURLPublicString = @"http://138.120.149.110:8080/biometric/FrontController?action=setGps";//
+//static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+static NSString * const cloudURLPublicString = @"http://127.0.0.1:8180/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://174.112.45.69:8180/biometric/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 static NSString * const cloudURLPrivateString = @"http://biometric-s.us-east-1.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://biometric-prd.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
@@ -82,7 +82,7 @@ static int uploadsColor = 0;
 static int locationCount = 0;
 static int LocationCountColor = 0;
 static int warningHeartRate = 156;
-static NSString * const USER_ID = @"201405";
+static NSString * const USER_ID = @"201703";
 static double G = 9.8;
 int hrMonitorsFound = 0;
 int hrConnections = 0;
