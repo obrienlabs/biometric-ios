@@ -67,11 +67,11 @@ static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DE
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLPublicString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gpsbio/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-//static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-static NSString * const cloudURLPublicString = @"http://127.0.0.1:8180/biometric/FrontController?action=setGps";//
+static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+//static NSString * const cloudURLPublicString = @"http://138.120.149.110:8080/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://174.112.45.69:8180/biometric/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
-static NSString * const cloudURLPrivateString = @"http://biometric-s.us-east-1.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
-//static NSString * const cloudURLPrivateString = @"http://biometric-prd.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
+//static NSString * const cloudURLPrivateString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
+static NSString * const cloudURLPrivateString = @"http://127.0.0.1:8888/biometric.web/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 
 //static NSString * const cloudURLPrivateString = @"http://obrien2.com/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://obrienlabs.elasticbeanstalk.com/FrontController?action=setGps";//
@@ -82,7 +82,7 @@ static int uploadsColor = 0;
 static int locationCount = 0;
 static int LocationCountColor = 0;
 static int warningHeartRate = 156;
-static NSString * const USER_ID = @"201703";
+static NSString * const USER_ID = @"201405";
 static double G = 9.8;
 int hrMonitorsFound = 0;
 int hrConnections = 0;
@@ -94,6 +94,7 @@ static int frame = 0;
 // flash the heart rate based on 100ms divisions
 static double heartDuration = 0;
 static double timerDuration = 0;
+static double noSignalDuration = 0;
 //static double timerDruationStep = 0.1f;
 
 // track time since last connect
@@ -255,12 +256,53 @@ NSDateFormatter *dateFormat;
      // flash heartrate based on 100ms flash every 1000ms
      //heartDuration+=(self.sensorManager.lastHeartRate1 / 60.0);
      heartDuration+=(self.sensorManager.lastHeartRate1 / 60.0);
-     if(heartDuration > 10) {
+     noSignalDuration+=1;
+     
+     
+     
+     if(noSignalDuration < 3) {
+          //noSignalDuration = 0;
+          self.gravXtextField.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0];
+          self.gravYtextField.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0];
+          self.gravZtextField.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0];
+          // flash unconnected HRM displays
+          if(self.sensorManager.lastHeartRate2 < 1) {//self.dataObject.heartRate2) {
+               self.rate2TextView.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0];
+               [self.rate2TextView setTextColor: [UIColor blackColor]];
+          }
+          if(self.sensorManager.lastHeartRate1 < 1) {//self.dataObject.heartRate1) {
+               self.rateField.backgroundColor = [UIColor colorWithRed: 255.0/255.0f green:255.0/255.0f blue:255.0/255.0f alpha:1.0];
+               [self.rateField setTextColor: [UIColor blackColor]];
+          }
+     } else {
+          if(noSignalDuration < 6) {
+          //noSignalDuration = 1;
+          self.gravXtextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:0.0/255.0f alpha:1.0];
+          self.gravYtextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:0.0/255.0f alpha:1.0];
+          self.gravZtextField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:0.0/255.0f alpha:1.0];
+          
+          //self.rateField.backgroundColor = [UIColor blackColor];
+          // flash unconnected HRM displays
+          if(self.sensorManager.lastHeartRate2 < 1) {//self.dataObject.heartRate2) {
+               self.rate2TextView.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:0.0/255.0f alpha:1.0];
+               [self.rate2TextView setTextColor: [UIColor whiteColor]];
+          }
+          if(self.sensorManager.lastHeartRate1 < 1) {//self.dataObject.heartRate1) {
+               self.rateField.backgroundColor = [UIColor colorWithRed: 0.0/255.0f green:0.0/255.0f blue:0.0/255.0f alpha:1.0];
+               [self.rateField setTextColor: [UIColor whiteColor]];
+          }
+          } else {
+               noSignalDuration = 0;
+          }
+     }
+     
+
+     /*if(heartDuration > 10) {
           heartDuration = 0;
           self.rateField.backgroundColor = [UIColor colorWithRed: 228.0/255.0f green:16.0/255.0f blue:255.0/255.0f alpha:1.0];
      } else {
           self.rateField.backgroundColor = [UIColor blackColor];
-     }
+     }*/
      
      // get upload state from the switch
      if(self.uploadUISwitch.isOn) {
@@ -288,6 +330,7 @@ NSDateFormatter *dateFormat;
           self.uploadConterTextField.backgroundColor = [UIColor redColor];
           [self.uploadConterTextField setTextColor: [UIColor whiteColor]];
      }
+     
      // pass values to the view
      ((BMUIView*)self.view).dataObject = self.dataObject;
      [((BMUIView*)self.view) update];
@@ -771,7 +814,7 @@ NSDateFormatter *dateFormat;
      }
      [url appendString: @"&u="];
      [url appendString: self.statusField.text];
-          [url appendString: @"&de=iph5se"];
+          [url appendString: @"&de=iph10"];
      [url appendString: @"&pr="];//ios7"];
      [url appendString: [NSString stringWithFormat:@"%f",[[[UIDevice currentDevice] systemVersion] floatValue]]];
      if(self.dataObject.heartRate1 > 0) {
@@ -858,6 +901,7 @@ NSDateFormatter *dateFormat;
      // Create the NSMutableData to hold the received data.
      self.receivedData = [NSMutableData dataWithCapacity: 0];
      
+     
      NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:theRequest delegate:self];
      if (!theConnection) {
           // Release the receivedData object.
@@ -872,6 +916,7 @@ NSDateFormatter *dateFormat;
           // todo: parse return string for OK
           
      }
+     
 }
 
 -(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data{
@@ -910,7 +955,7 @@ NSDateFormatter *dateFormat;
      // receivedData is an instance variable declared elsewhere.
      NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
      int code = [httpResponse statusCode];
-     NSLog(@"Code: %d", code);
+     NSLog(@"didReceiveResponse: Code: %d", code);
      [self.receivedData setLength:0];
      
 }

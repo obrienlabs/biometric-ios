@@ -78,6 +78,10 @@
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleDefault</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>experiment</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>experiment</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
