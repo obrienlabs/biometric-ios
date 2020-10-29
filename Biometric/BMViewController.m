@@ -612,12 +612,13 @@ NSDateFormatter *dateFormat;
           hrMonitorsFound++;
      }
      // special handling for the less reliable MIO pulse watch - put it last
-     if(![peripheral.name isEqual: @"MIO GLOBAL"] && ![peripheral.name isEqual: @"MIO GLOBAL LINK"]
-        && ![peripheral.name isEqual: @"RHYTHM+"]) {
-          hrMonitor1Found = true;
-          self.sensorManager.peripheral1 = peripheral;
-          self.deviceTextField.text = peripheral.name;
-     } else {
+     // 20201028 disabled mio handling in favor of 2 polar watches
+     //if(![peripheral.name isEqual: @"MIO GLOBAL"] && ![peripheral.name isEqual: @"MIO GLOBAL LINK"]
+     //   && ![peripheral.name isEqual: @"RHYTHM+"]) {
+     //     hrMonitor1Found = true;
+     //     self.sensorManager.peripheral1 = peripheral;
+     //     self.deviceTextField.text = peripheral.name;
+     //} else {
           // handle 2 MIO watches
           if(hrMonitorsFound == 1 && !hrMonitor1Found) {
                hrMonitor1Found = true;
@@ -628,7 +629,7 @@ NSDateFormatter *dateFormat;
                self.sensorManager.peripheral2 = peripheral;
                self.device2TextField.text = peripheral.name;
           }
-     }
+     //}
      
      
      [self.manager

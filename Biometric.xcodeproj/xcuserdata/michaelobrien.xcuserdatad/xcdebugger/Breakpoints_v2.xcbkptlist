@@ -21,7 +21,7 @@
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "DFFE692F-275B-4FC5-82FC-DBF209226F17 - 5ee387f477a8a472"
+                  uuid = "DFFE692F-275B-4FC5-82FC-DBF209226F17 - b4e158539446a8eb"
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -37,7 +37,7 @@
                   offsetFromSymbolStart = "362">
                </Location>
                <Location
-                  uuid = "DFFE692F-275B-4FC5-82FC-DBF209226F17 - 5ee387f477a8a472"
+                  uuid = "DFFE692F-275B-4FC5-82FC-DBF209226F17 - b4e158539446a8eb"
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -87,38 +87,6 @@
             endingLineNumber = "23"
             landmarkName = "aView"
             landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - f181d7bc9d5e543f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BMViewController aView]"
-                  moduleName = "Biometric"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/wse_github/biometric-ios/Biometric/BMViewController.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "23"
-                  endingLineNumber = "23"
-                  offsetFromSymbolStart = "20">
-               </Location>
-               <Location
-                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 1406f178cf0ad285"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BMViewController setAView:]"
-                  moduleName = "Biometric"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/wse_github/biometric-ios/Biometric/BMViewController.h"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "23"
-                  endingLineNumber = "23"
-                  offsetFromSymbolStart = "60">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -155,7 +123,7 @@
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "2D57D84F-54DB-444F-A62E-AAC8DCC3B218 - e619be5439c79b4c"
+                  uuid = "2D57D84F-54DB-444F-A62E-AAC8DCC3B218 - 18eeb3261a2cc523"
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -171,7 +139,7 @@
                   offsetFromSymbolStart = "206">
                </Location>
                <Location
-                  uuid = "2D57D84F-54DB-444F-A62E-AAC8DCC3B218 - e619be5439c79b4c"
+                  uuid = "2D57D84F-54DB-444F-A62E-AAC8DCC3B218 - 18eeb3261a2cc523"
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
