@@ -89,14 +89,14 @@
             landmarkType = "24">
             <Locations>
                <Location
-                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 9625e505d8f15328"
+                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 789d874eefd1d2cd"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "-[BMViewController aView]"
                   moduleName = "Biometric"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/wse_github/biometric-ios/Biometric/BMViewController.h"
+                  urlString = "file:///Users/michaelobrien/wse_github/obrienlabs/biometric-ios/Biometric/BMViewController.h"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "23"
@@ -104,14 +104,14 @@
                   offsetFromSymbolStart = "20">
                </Location>
                <Location
-                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 73a2c3c18aa5d592"
+                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 9d1aa18abd855477"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "-[BMViewController setAView:]"
                   moduleName = "Biometric"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/wse_github/biometric-ios/Biometric/BMViewController.h"
+                  urlString = "file:///Users/michaelobrien/wse_github/obrienlabs/biometric-ios/Biometric/BMViewController.h"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "23"
