@@ -71,7 +71,7 @@ static NSString * const cloudURLPublicString = @"http://biometric.elasticbeansta
 //static NSString * const cloudURLPublicString = @"http://138.120.149.110:8080/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://174.112.45.69:8180/biometric/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
-static NSString * const cloudURLPrivateString = @"http://174.112.128.160:8889/nbi/api?";//&u=20131027&lt=0&lg=0&al=0&hr=99
+static NSString * const cloudURLPrivateString = @"http://local.obrienlabs.io/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://127.0.0.1:8080/nbi/api?";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://obrien2.com/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://obrienlabs.elasticbeanstalk.com/FrontController?action=setGps";//
@@ -133,7 +133,7 @@ NSDateFormatter *dateFormat;
      // preferences
      // https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/UserDefaults/Preferences/Preferences.html#//apple_ref/doc/uid/10000059i-CH6-SW6
      // register preferences
-     NSString *userId = @"201505";
+     NSString *userId = @"202408";
      
      // move the view back up
      self.navigationController.navigationBar.translucent = NO;
