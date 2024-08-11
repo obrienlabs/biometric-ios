@@ -832,7 +832,7 @@ NSDateFormatter *dateFormat;
      [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.longitude]];
      [url appendString: @"&lt="];
      [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.latitude]];
-     [url appendString: @"&al=0"];
+     [url appendString: @"&al="];
      [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.altitude]];
      [url appendString: @"&ac="]; // accuracy (grid on ios)
      [url appendString: [NSString stringWithFormat:@"%f", self.dataObject.accuracyHorizontal]];
