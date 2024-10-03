@@ -18,6 +18,11 @@
 //@interface BMViewController : UIViewController
 @interface BMViewController : UIViewController <CBCentralManagerDelegate, CBPeripheralDelegate>
 
+// 20241002 add speed button - see dataObject.speed m/s via gps - not attached
+// https://developer.apple.com/documentation/corelocation/cllocation/speed
+@property (weak, nonatomic) IBOutlet UITextField *speedTextField;
+@property (assign) uint16_t speed;
+
 @property (nonatomic, retain) NSMutableData *receivedData;
 @property (nonatomic, strong) BMPersistence *persistence;
 @property (weak, nonatomic) UIView *aView;

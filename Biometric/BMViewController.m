@@ -400,7 +400,12 @@ NSDateFormatter *dateFormat;
      lastLongitude = self.dataObject.longitude;
      lastLatitude = self.dataObject.latitude;
      self.dataObject.speed = location.speed;
-          self.dataObject.longitude = location.coordinate.longitude;
+     // 20241002 add speed button - not attached
+     NSString *speedString = [NSString stringWithFormat:@"%+.3f", self.dataObject.speed];
+     //self.speedTextField.text = speedString;
+     self.proximityTextField.text = speedString;
+ 
+     self.dataObject.longitude = location.coordinate.longitude;
           self.dataObject.latitude = location.coordinate.latitude;
           NSString *latString = [NSString stringWithFormat:@"%+.5f", self.dataObject.latitude];
           NSString *lonString = [NSString stringWithFormat:@"%+.5f", self.dataObject.longitude];
@@ -495,11 +500,12 @@ NSDateFormatter *dateFormat;
 - (void)proximityChanged:(NSNotification *)notification {
      UIDevice *device = [notification object];
      if (device.proximityState == 1) {
-          self.proximityTextField.text = @"1";
+          // 2024 use speed instead
+          //self.proximityTextField.text = @"1";
           self.proximityTextField.backgroundColor = [UIColor greenColor];
           [self.proximityTextField setTextColor: [UIColor blackColor]];
      } else {
-          self.proximityTextField.text = @"0";
+          //self.proximityTextField.text = @"0";
           self.proximityTextField.backgroundColor = [UIColor blueColor];
           [self.proximityTextField setTextColor: [UIColor whiteColor]];
      }
