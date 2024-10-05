@@ -67,11 +67,13 @@ static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DE
 //static NSString * const kCharacteristicUUID = @"6c721826 5bf14f64 9170381c 08ec57ee";
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLPublicString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gpsbio/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+//static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
+static NSString * const cloudURLPublicString = @"http://local.obrienlabs.io:8889/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=999
 //static NSString * const cloudURLPublicString = @"http://138.120.149.110:8080/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://174.112.45.69:8180/biometric/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
-static NSString * const cloudURLPrivateString = @"http://local.obrienlabs.io:8889/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=99
+//static NSString * const cloudURLPrivateString = @"http://local.obrienlabs.io:8889/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=99
+static NSString * const cloudURLPrivateString = @"http://127.0.0.1:8080/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://127.0.0.1:8080/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://obrien2.com/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://obrienlabs.elasticbeanstalk.com/FrontController?action=setGps";//
