@@ -19,40 +19,6 @@
             endingLineNumber = "400"
             landmarkName = "-locationManager:didUpdateLocations:"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "DFFE692F-275B-4FC5-82FC-DBF209226F17 - b4e158539446a8eb"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BMViewController locationManager:didUpdateHeading:]"
-                  moduleName = "Biometric"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/Dropbox/ios/Biometric/Biometric/BMViewController.m"
-                  timestampString = "405140209.689948"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "119"
-                  endingLineNumber = "119"
-                  offsetFromSymbolStart = "362">
-               </Location>
-               <Location
-                  uuid = "DFFE692F-275B-4FC5-82FC-DBF209226F17 - b4e158539446a8eb"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BMViewController locationManager:didUpdateHeading:]"
-                  moduleName = "Biometric"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/Dropbox/ios/Biometric/Biometric/BMViewController.m"
-                  timestampString = "405140209.690346"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "119"
-                  endingLineNumber = "119"
-                  offsetFromSymbolStart = "446">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -68,7 +34,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "924"
             endingLineNumber = "924"
-            landmarkName = "-connection:didReceiveData:"
+            landmarkName = "-httpPushToDataCenter"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -85,38 +51,36 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "23"
             endingLineNumber = "23"
-            landmarkName = "aView"
+            landmarkName = "speedTextField"
             landmarkType = "24">
             <Locations>
                <Location
-                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 789d874eefd1d2cd"
+                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 3252f4baa8f1ccee"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[BMViewController aView]"
+                  symbolName = "-[BMViewController speedTextField]"
                   moduleName = "Biometric"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/michaelobrien/wse_github/obrienlabs/biometric-ios/Biometric/BMViewController.h"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "23"
-                  endingLineNumber = "23"
-                  offsetFromSymbolStart = "20">
+                  endingLineNumber = "23">
                </Location>
                <Location
-                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 9d1aa18abd855477"
+                  uuid = "F739EC19-67DC-4024-BBB7-76D384CE700B - 13e771ac5d9d3a1c"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "-[BMViewController setAView:]"
+                  symbolName = "-[BMViewController setSpeedTextField:]"
                   moduleName = "Biometric"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/michaelobrien/wse_github/obrienlabs/biometric-ios/Biometric/BMViewController.h"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "23"
-                  endingLineNumber = "23"
-                  offsetFromSymbolStart = "48">
+                  endingLineNumber = "23">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -153,40 +117,6 @@
             endingLineNumber = "85"
             landmarkName = "-drawRect:"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "2D57D84F-54DB-444F-A62E-AAC8DCC3B218 - 18eeb3261a2cc523"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BMUIView drawRect:]"
-                  moduleName = "Biometric"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/Dropbox/ios/Biometric/Biometric/BMUIView.m"
-                  timestampString = "406584810.964421"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "73"
-                  endingLineNumber = "73"
-                  offsetFromSymbolStart = "206">
-               </Location>
-               <Location
-                  uuid = "2D57D84F-54DB-444F-A62E-AAC8DCC3B218 - 18eeb3261a2cc523"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BMUIView drawRect:]"
-                  moduleName = "Biometric"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/michaelobrien/Dropbox/ios/Biometric/Biometric/BMUIView.m"
-                  timestampString = "406584810.964613"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "73"
-                  endingLineNumber = "73"
-                  offsetFromSymbolStart = "486">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

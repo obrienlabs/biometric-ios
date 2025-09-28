@@ -68,7 +68,7 @@ static NSString * const kServiceUUID_wahoo = @"4A90672B-EC3A-BEC2-5833-AD5A559DE
 static NSString * const HEARTRATE_UUID = @"2a37";
 //static NSString * const cloudURLPublicString = @"https://obrienscience-obrienlabs.java.us1.oraclecloudapps.com/gpsbio/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
 //static NSString * const cloudURLPublicString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=999
-static NSString * const cloudURLPublicString = @"http://local.obrienlabs.io:8889/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=999
+static NSString * const cloudURLPublicString = @"http://local.obrienlabs.io:8888/nbi/api/getGps?";//&u=20131027&lt=0&lg=0&al=0&hr=999
 //static NSString * const cloudURLPublicString = @"http://138.120.149.110:8080/biometric/FrontController?action=setGps";//
 //static NSString * const cloudURLPrivateString = @"http://174.112.45.69:8180/biometric/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
 //static NSString * const cloudURLPrivateString = @"http://biometric.elasticbeanstalk.com/FrontController?action=setGps";//&u=20131027&lt=0&lg=0&al=0&hr=99
@@ -135,7 +135,7 @@ NSDateFormatter *dateFormat;
      // preferences
      // https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/UserDefaults/Preferences/Preferences.html#//apple_ref/doc/uid/10000059i-CH6-SW6
      // register preferences
-     NSString *userId = @"202408";
+     NSString *userId = @"202507";
      
      // move the view back up
      self.navigationController.navigationBar.translucent = NO;
